@@ -4,19 +4,19 @@ import { deployContract, registerDataProviders, updatePrices } from "./utils";
 import dotenv from "dotenv";
 dotenv.config();
 
-const FUND_AMOUNT = "10";
+const FUND_AMOUNT = ".01";
 // Network Configuration
 const networks = [
     {
         name: "zkSyncLocalTestnet",
-        rpcEndpoint: "http://localhost:3050",
+        rpcEndpoint: "https://testnet.era.zksync.dev",
         richWalletPK: process.env.ZK_WALLET_PRIVATE_KEY || "",
         deployFunc: deployZkSyncLocalTestnet
-    }, 
+    },
     {
         name: "OptimismTestnet",
-        rpcEndpoint: "http://localhost:9545",
-        richWalletPK: process.env.OP_WALLET_PRIVATE_KEY || "",
+        rpcEndpoint: "https://goerli.optimism.io",
+        richWalletPK: process.env.ZK_WALLET_PRIVATE_KEY || "",
         deployFunc: deployOptimismTestnet
     }
     // ... add more networks as required
@@ -28,7 +28,7 @@ const networks = [
 const dataProvider1 = new ethers.Wallet(ethers.Wallet.createRandom().privateKey);
 const dataProvider2 = new ethers.Wallet(ethers.Wallet.createRandom().privateKey);
 const dataProvider3 = new ethers.Wallet(ethers.Wallet.createRandom().privateKey);
-const wallets = [dataProvider1, dataProvider2, dataProvider3];
+let wallets = [dataProvider1, dataProvider2, dataProvider3];
 
 let gasCosts: any = {};
 interface DeployedContract {
@@ -44,7 +44,6 @@ async function deployZkSyncLocalTestnet(networkConfig: any, deployer: ethers.Wal
     console.log("Contract deployed to", contract.address);
     return contract;
 }
-
 
 async function deployOptimismTestnet(networkConfig: any, deployer: ethers.Wallet): Promise<DeployedContract> {
     console.log("Deploying to Optimism Testnet")
@@ -69,14 +68,14 @@ async function main() {
         // Initialize Network
         console.log(`Deploying on: ${networkConfig.name}`);
         const provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcEndpoint);
-        console.log("Deploying contract");
         const deploymentWallet = new ethers.Wallet(networkConfig.richWalletPK);
         const deployer = deploymentWallet.connect(provider);
-        console.log("Connecting wallets");
+        
         // Connect wallets to the current provider
         wallets.forEach(wallet => wallet.connect(provider));
+
+        wallets = wallets.map(wallet => wallet.connect(provider));
         // Deploy the contract
-        console.log("Deploying contract");
         const contract = await networkConfig.deployFunc(networkConfig, deployer);
         
         gasCosts[networkConfig.name].deploy = contract.gas;
@@ -91,6 +90,7 @@ async function main() {
         console.log("Registering data providers");
         gasCosts[networkConfig.name].register = await registerDataProviders(contract.address, networkConfig.rpcEndpoint, wallets);
 
+        console.log("before updatePrice balances: ", await Promise.all(wallets.map(async wallet => ethers.utils.formatEther(await wallet.getBalance()))));
         // Update prices
         console.log("Updating prices");
         gasCosts[networkConfig.name].update = await updatePrices(contract.address, networkConfig.rpcEndpoint, wallets);
@@ -98,32 +98,78 @@ async function main() {
         // ... finalize prices or any other operations
     }
 
-    // Display the gas costs
-    console.log("Gas Costs:");
+    displayGasCostsMatrix(gasCosts, networks);
+
+    // // Display the gas costs
+    // console.log("Gas Costs:");
+    // for (let network of networks) {
+    //     console.log(`Network: ${network}`);
+    //     console.log(`Deploy: ${ethers.utils.formatEther(gasCosts[network.name].deploy.toString())} ETH`);
+    //     console.log(`Register: ${ethers.utils.formatEther(gasCosts[network.name].register)} ETH`);
+
+    //     const updateIndividualProviders = gasCosts[network.name].update.individualCosts;
+    //     const updateTotalCost = gasCosts[network.name].update.totalGasCost;
+
+    //     console.log("Update costs:");
+    //     for (const dataProvider in updateIndividualProviders) {
+    //         console.log(`  ${dataProvider} (Tx Count: ${updateIndividualProviders[dataProvider].txCount}):`);
+    //         const costsArray = updateIndividualProviders[dataProvider].costs;
+    //         let providerTotal = ethers.BigNumber.from(0);
+    //         for (let i = 0; i < costsArray.length - 1; i++) {
+    //             console.log(`Operation ${i + 1}: ${ethers.utils.formatEther(costsArray[i].toString())} ETH`);
+    //             providerTotal = providerTotal.add(ethers.BigNumber.from(costsArray[i]));
+    //         }
+    //         console.log(`Total for ${dataProvider}: ${ethers.utils.formatEther(providerTotal.toString())} ETH`);
+    //     }
+    //     console.log(`Update Total for all providers: ${ethers.utils.formatEther(updateTotalCost.toString())} ETH`);
+
+    //     // Uncomment the line below if you also have a 'finalize' key in gasCosts
+    //     // console.log(`  Finalize: ${ethers.utils.formatEther(gasCosts[network].finalize)} ETH`);
+    // }
+}
+
+// Gas costs summary matrix
+export function displayGasCostsMatrix(gasCosts, networks) {
+    console.log("\n========= Gas Costs Matrix =========");
+    const header = ['Network', 'Deploy Cost', 'Register Cost', 'updatePrice Cost', 'cost per updatePrice call', '# of txs', 'Total Cost'];
+    console.log(header.join('\t'));
+
+    const networkData = [];
+
     for (let network of networks) {
-        console.log(`Network: ${network}`);
-        console.log(`Deploy: ${ethers.utils.formatEther(gasCosts[network.name].deploy.toString())} ETH`);
-        console.log(`Register: ${ethers.utils.formatEther(gasCosts[network.name].register)} ETH`);
+        const deployCost = ethers.utils.formatEther(gasCosts[network.name].deploy.toString());
+        const registerCost = ethers.utils.formatEther(gasCosts[network.name].register);
 
         const updateIndividualProviders = gasCosts[network.name].update.individualCosts;
-        const updateTotalCost = gasCosts[network.name].update.totalGasCost;
+        const updateTotalCost = ethers.utils.formatEther(gasCosts[network.name].update.totalGasCost.toString());
 
-        console.log("Update costs:");
+        let totalTxs = 0;
+        let avgCostPerUpdate = ethers.BigNumber.from(0);
+
         for (const dataProvider in updateIndividualProviders) {
-            console.log(`  ${dataProvider} (Tx Count: ${updateIndividualProviders[dataProvider].txCount}):`);
-            const costsArray = updateIndividualProviders[dataProvider].costs;
-            let providerTotal = ethers.BigNumber.from(0);
-            for (let i = 0; i < costsArray.length - 1; i++) {
-                console.log(`Operation ${i + 1}: ${ethers.utils.formatEther(costsArray[i].toString())} ETH`);
-                providerTotal = providerTotal.add(ethers.BigNumber.from(costsArray[i]));
-            }
-            console.log(`Total for ${dataProvider}: ${ethers.utils.formatEther(providerTotal.toString())} ETH`);
+            totalTxs += updateIndividualProviders[dataProvider].txCount;
+            avgCostPerUpdate = avgCostPerUpdate.add(updateIndividualProviders[dataProvider].totalGas);
         }
-        console.log(`Update Total for all providers: ${ethers.utils.formatEther(updateTotalCost.toString())} ETH`);
+        avgCostPerUpdate = avgCostPerUpdate.div(totalTxs);
+        const totalCost = ethers.utils.formatEther(gasCosts[network.name].deploy.add(gasCosts[network.name].register).add(gasCosts[network.name].update.totalGasCost).toString());
 
-        // Uncomment the line below if you also have a 'finalize' key in gasCosts
-        // console.log(`  Finalize: ${ethers.utils.formatEther(gasCosts[network].finalize)} ETH`);
+        networkData.push([network.name, deployCost, registerCost, updateTotalCost, ethers.utils.formatEther(avgCostPerUpdate.toString()), totalTxs, totalCost]);
     }
+
+    for (const row of networkData) {
+        console.log(row.join('\t'));
+    }
+    
+    // Calculate Delta (difference between the two networks)
+    if (networkData.length === 2) {
+        const deltas = ['Delta'];
+        for (let i = 1; i < networkData[0].length; i++) {
+            deltas.push((parseFloat(networkData[0][i]) - parseFloat(networkData[1][i])).toFixed(5));
+        }
+        console.log(deltas.join('\t'));
+    }
+
+    console.log("===================================\n");
 }
 
 main().catch(console.error);

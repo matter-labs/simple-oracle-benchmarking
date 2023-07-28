@@ -9,7 +9,7 @@ export async function deployContract(networkName: string, deployerWallet: any): 
     const abi = ContractArtifact.abi;
     let deployer;
     // TODO: make better
-    if (networkName === 'http://localhost:3050') {
+    if (networkName === 'https://testnet.era.zksync.dev') {
         console.log("Deploying to local zkSync network");
         deployer = new Deployer(hre, deployerWallet);
         deployer = deployer.ethWallet;
@@ -115,7 +115,7 @@ export async function updatePrices(contractAddress: string, networkName: string,
     }));
 
     console.log(`Grand Total Gas Cost for all Data Providers: ${ethers.utils.formatEther(grandTotalGasCost.toString())} ETH`);
-
+    console.log("after updates balances: ", await Promise.all(wallets.map(async wallet => ethers.utils.formatEther(await wallet.getBalance()))) );
     return { individualCosts: results, totalGasCost: grandTotalGasCost };
 }
 

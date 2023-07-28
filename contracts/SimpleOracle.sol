@@ -3,15 +3,22 @@ pragma solidity ^0.8.0;
 
 contract SimpleOracle {
     struct DataProvider {
-        uint32 id;         // Assuming the id will not exceed 2^32 - 1
-        uint32 tempPrice; // Assuming the temporary price will not exceed 2^32 - 1
+        uint32 id;
+        uint32 tempPrice;
+    }
+
+    struct StateDiff {
+        uint32 totalTempPricesDiff;
+        uint32 dataProviderCountDiff;
     }
 
     mapping(address => DataProvider) public dataProviders;
 
+    StateDiff private pendingStateDiff;
+
     uint32 private totalTempPrices;
     uint32 private dataProviderCount;
-    uint32 private nextId = 1; // Starts at 1 since 0 is used to check if a provider is registered or not
+    uint32 private nextId = 1;
     
     uint32 public aggregatedPrice;
 
@@ -36,18 +43,29 @@ contract SimpleOracle {
         DataProvider storage provider = dataProviders[msg.sender];
         
         require(provider.id != 0, "Data provider not registered");
+        
         if (provider.tempPrice == 0) {
-            dataProviderCount += 1;
+            pendingStateDiff.dataProviderCountDiff += 1;
         }
 
-        totalTempPrices = totalTempPrices - provider.tempPrice + newPrice;
+        pendingStateDiff.totalTempPricesDiff = pendingStateDiff.totalTempPricesDiff - provider.tempPrice + newPrice;
 
         provider.tempPrice = newPrice;
 
         emit PriceUpdated(msg.sender, newPrice);
     }
 
+    function applyStateDiff() internal {
+        totalTempPrices += pendingStateDiff.totalTempPricesDiff;
+        dataProviderCount += pendingStateDiff.dataProviderCountDiff;
+
+        // Reset the pending state diff
+        pendingStateDiff = StateDiff(0, 0);
+    }
+
     function finalizePrice() external {
+        applyStateDiff();
+
         require(dataProviderCount > 0, "No data providers updated prices");
 
         aggregatedPrice = totalTempPrices / dataProviderCount;
