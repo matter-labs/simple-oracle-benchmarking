@@ -132,3 +132,6 @@ dist
 
 artifacts-zk/
 cache-zk/
+/scripts/.env
+/scripts/local-setups/optimism
+/scripts/local-setups/local-setup
