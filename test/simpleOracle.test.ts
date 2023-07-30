@@ -3,7 +3,7 @@ import { Wallet, Provider, Contract } from "zksync-web3";
 import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { fundAccount } from "./utils";
-
+//// "test": "NODE_ENV=test hardhat test --network zkSyncLocalTestnet",
 import dotenv from "dotenv";
 dotenv.config();
 
