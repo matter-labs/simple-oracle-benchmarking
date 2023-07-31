@@ -1,43 +1,66 @@
-# zkSync Hardhat project
+# Simple Oracle Benchmarking 📊🔍
 
-This project was scaffolded with [zksync-cli](https://github.com/matter-labs/zksync-cli).
+Benchmark the gas costs for a simple oracle contract across different networks! 💡
 
-## Project structure
+## How It Works 🛠
 
-- `/contracts`: smart contracts.
-- `/deploy`: deployment and contract interaction scripts.
-- `/test`: test files
-- `hardhat.config.ts`: configuration file.
+1. **Deploy**: The script deploys a simple oracle contract to a specified network.
+2. **Register Data Providers**: Three dataProviders are created, funded, and then registered.
+3. **Update Prices**: Each dataProvider updates the price with a random value every second for 60 seconds. (To adjust the duration, modify the value in `/scripts/oracleOps.ts`).
+4. **Finalize Prices**: The `finalizePrice` function is called from the owner's account every second for 60 seconds.
+5. **Review Results**: At the end, you get a detailed table showcasing the gas costs for each operation. 📈
 
-## Commands
+## Prerequisites 📋
 
-- `yarn hardhat compile` will compile the contracts.
-- `yarn run deploy` will execute the deployment script `/deploy/deploy-greeter.ts`. Requires [environment variable setup](#environment-variables).
-- `yarn run greet` will execute the script `/deploy/use-greeter.ts` which interacts with the Greeter contract deployed.
-- `yarn test`: run tests. **Check test requirements below.**
+- Node.js
+- Yarn
 
-Both `yarn run deploy` and `yarn run greet` are configured in the `package.json` file and run `yarn hardhat deploy-zksync`.
+## Setup and Execution 🚀
 
-### Environment variables
+### 1. Install Dependencies
 
-In order to prevent users to leak private keys, this project includes the `dotenv` package which is used to load environment variables. It's used to load the wallet private key, required to run the deploy script.
-
-To use it, rename `.env.example` to `.env` and enter your private key.
-
-```
-WALLET_PRIVATE_KEY=123cde574ccff....
+```bash
+yarn install
 ```
 
-### Local testing
+### 2. Compile the Oracle Contract
 
-In order to run test, you need to start the zkSync local environment. Please check [this section of the docs](https://v2-docs.zksync.io/api/hardhat/testing.html#prerequisites) which contains all the details.
+```bash
+yarn compile:contracts
+```
 
-If you do not start the zkSync local environment, the tests will fail with error `Error: could not detect network (event="noNetwork", code=NETWORK_ERROR, version=providers/5.7.2)`
+### 3. Local zkSync Environment
 
-## Official Links
+If you're planning to run this against a local zkSync network, start the zkSync local environment first. Ensure it runs against the Dockerized setup. 
 
-- [Website](https://zksync.io/)
-- [Documentation](https://v2-docs.zksync.io/dev/)
-- [GitHub](https://github.com/matter-labs)
-- [Twitter](https://twitter.com/zksync)
-- [Discord](https://discord.gg/nMaPGrDDwk)
+📖 [zkSync Docs - Testing](https://era.zksync.io/docs/tools/testing/)
+
+### 4. Environment Variables Setup 🌳
+
+For security reasons (especially to avoid the leakage of private keys), we use the `dotenv` package. 
+
+Rename `.env.example` to `.env` and fill in your details:
+
+```
+WALLET_PRIVATE_KEY=your_private_key_here
+```
+
+### 5. Running the Benchmark
+
+```bash
+yarn run:benchmark
+```
+
+## Useful Commands 🛠
+
+`yarn test`: Runs unit test
+`yarn run:benchmark`: Starts benchmarking script from `benchmark.ts`
+`yarn deploy`: Deploy SimpleOracle.sol
+`yarn fix:fmt`: Fixes formatting
+
+## Testnets 🌍
+
+To run against testnets like zkSync, Polygon Mumbai, Polygon zkEVM, Optimism, and Arbitrium, ensure you have funds in a wallet for each network to cover the deployment and oracle operation costs.
+
+- Uncomment the desired networks in `/scripts/networks`.
+- Run script `yarn run:benchmark`
