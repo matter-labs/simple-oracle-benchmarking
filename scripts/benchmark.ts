@@ -9,7 +9,7 @@ import {
 import { networks } from "./networks";
 
 // fund amount in ETH for each data provider
-const FUND_AMOUNT = ".01";
+const FUND_AMOUNT = "10";
 
 // Create new data providers
 const dataProviders = Array(3)
@@ -66,7 +66,6 @@ async function main() {
       networkConfig.rpcEndpoint,
       connectedWallets,
     );
-
     console.log("\nFinalizing price: ");
     gasCosts[networkConfig.name].finalize = await finalizePrices(
       contract.address,
