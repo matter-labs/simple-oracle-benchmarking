@@ -17,6 +17,7 @@ dotenv.config();
  * Uncomment/add more network objects as required to expand support.
  */
 export const networks = [
+  // TODO: make this easy to switch between local and testnet and mainnet
   {
     name: "zkSyncTestnet",
     rpcEndpoint: "http://localhost:3050",
@@ -25,10 +26,27 @@ export const networks = [
     deployFunc: deployZkSyncLocalTestnet,
   },
   //   {
-  //       name: "OptimismTestnet",
-  //       rpcEndpoint: "https://goerli.optimism.io",
-  //       richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //       deployFunc: deployOptimismTestnet
-  //   }
-  // ... add more networks as required
+  //     name: "OptimismTestnet",
+  //     rpcEndpoint: "https://goerli.optimism.io",
+  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //     deployFunc: deployOptimismTestnet,
+  //   },
+  //   {
+  //     name: "polygonzkEVMTestnet",
+  //     rpcEndpoint: "https://rpc.public.zkevm-test.net",
+  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //     deployFunc: deployOptimismTestnet,
+  //   },
+  //   {
+  //     name: "polygonMumbaiTestnet",
+  //     rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
+  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //     deployFunc: deployOptimismTestnet,
+  //   },
+  //   {
+  //     name: "arbitrumTestnet",
+  //     rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //     deployFunc: deployOptimismTestnet,
+  //   },
 ];

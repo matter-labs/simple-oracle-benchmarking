@@ -1,6 +1,8 @@
 import * as ethers from "ethers";
 import * as ContractArtifact from "../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 
+// DURATION_MINUTES is the number of minutes that the data providers will be updating prices AND
+// the number of minutes that the owner will be finalizing the price.
 export const DURATION_MINUTES = 1;
 
 /**
@@ -13,10 +15,6 @@ export const DURATION_MINUTES = 1;
  * @returns {Promise<number>} Total gas cost of all registration transactions.
  *
  * @throws {Error} Throws an error if the gas information cannot be retrieved from the registration transaction.
- *
- * Note:
- * - The function attempts to use the `effectiveGasPrice` from the transaction receipt for gas cost calculation. If it's absent,
- *   a fallback gas price of 250_000_000 is used (typically for zkSync local-setup).
  */
 export async function registerDataProviders(
   contractAddress: string,
@@ -41,13 +39,8 @@ export async function registerDataProviders(
     );
 
     let gasLimit = receipt.gasUsed;
-    let gasPrice;
-    // NOTE: This is specifically for zkSync local-setup where gasPrice is null
-    if (receipt.effectiveGasPrice === null || undefined) {
-      gasPrice = ethers.BigNumber.from(250_000_000);
-    } else {
-      gasPrice = receipt.effectiveGasPrice;
-    }
+    let gasPrice =
+      receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
 
     if (!gasLimit || !gasPrice) {
       throw new Error(
@@ -61,8 +54,9 @@ export async function registerDataProviders(
   return totalGas.toNumber();
 }
 /**
- * Updates prices on a given contract using multiple data providers (wallets) for a specific duration and calculates the total gas costs.
+ * Updates prices on a given contract using multiple data providers for a specific duration and calculates the total gas costs.
  * * Note: The function runs a loop that continually updates prices on the given contract until the DURATION_MINUTES is reached.
+ * * Note: The prices are randomly generated.
  *
  * @param {string} contractAddress - Address of the contract to update prices on.
  * @param {string} networkName - Name of the network to connect to using the JsonRpcProvider.
@@ -75,7 +69,7 @@ export async function registerDataProviders(
  * }>} An object containing:
  *   - individualCosts: An object mapping each data provider to its associated gas costs details.
  *   - totalGasCost: The grand total gas cost for all data provider updates.
- *   - gasPrice: The gas price used for the transactions. (Note: fallback to 250_000_000 if gasPrice is null, for zkSync local-setup)
+ *   - gasPrice: The gas price used for the transactions.
  */
 export async function updatePrices(
   contractAddress: string,
@@ -120,18 +114,8 @@ export async function updatePrices(
         const receipt = await tx.wait();
 
         const gasUsed = receipt.gasUsed;
-        console.log(
-          "\n\ngasPrice effective:::: ",
-          ethers.utils.formatEther(receipt.effectiveGasPrice),
-        );
-        const gp = await withSigner.provider.getGasPrice();
-        console.log(
-          "\n\n\nprovider gasPrice:::: ",
-          ethers.utils.formatEther(gp),
-        );
-        // NOTE: This is specifically for zkSync local-setup where gasPrice is null
         gasPrice =
-          receipt.effectiveGasPrice || ethers.BigNumber.from(250_000_000);
+          receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
         const cost = gasUsed.mul(gasPrice);
 
         results[walletKey].costs.push(cost);
@@ -188,10 +172,8 @@ export async function updatePrices(
  *
  * @returns {Promise<{
  *   totalGasCost: ethers.BigNumber;
- *   gasPrice: ethers.BigNumber;
  * }>} An object containing:
  *   - totalGasCost: The grand total gas cost for all the `finalizePrice` calls.
- *   - gasPrice: The gas price used for the transactions. (Note: fallback to 250_000_000 if gasPrice is null, for zkSync local-setup)
  *
  * Note: The function runs a loop that continually calls the `finalizePrice` function on the given contract until the DURATION_MINUTES is reached.
  */
@@ -201,7 +183,6 @@ export async function finalizePrices(
   wallet: ethers.Wallet,
 ): Promise<{
   totalGasCost: ethers.BigNumber;
-  gasPrice: ethers.BigNumber;
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   const connectedWallet = wallet.connect(provider);
@@ -221,8 +202,8 @@ export async function finalizePrices(
     const tx = await contract.finalizePrice();
     const receipt = await tx.wait();
     const gasUsed = receipt.gasUsed;
-    // NOTE: This is specifically for zkSync local-setup where gasPrice is null
-    gasPrice = tx.gasPrice || ethers.BigNumber.from(250_000_000);
+    gasPrice =
+      receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
     const cost = gasUsed.mul(gasPrice);
 
     totalGasCost = totalGasCost.add(cost);
@@ -247,7 +228,6 @@ export async function finalizePrices(
   );
 
   return {
-    totalGasCost: totalGasCost,
-    gasPrice: gasPrice,
+    totalGasCost,
   };
 }

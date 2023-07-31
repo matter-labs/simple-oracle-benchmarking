@@ -25,8 +25,9 @@
     "zksync-web3": "^0.14.3"
   },
   "scripts": {
-    "test": "NODE_ENV=test hardhat test --network zkSyncLocalTestnet",
+    "test": "NODE_ENV=test hardhat test --network zkSyncTestnet",
     "run:benchmark": "ts-node scripts/benchmark.ts",
+    "contracts:compile": "hardhat compile",
     "deploy": "yarn hardhat deploy-zksync --script deploy-simple-oracle.ts",
     "fix:fmt": "prettier --write \"{deploy,test,scripts}/**/*.{ts,js,jsx,tsx}\"",
     "lint:fmt": "prettier --check \"{deploy,test,scripts}/**/*.{ts,js,jsx,tsx}\""

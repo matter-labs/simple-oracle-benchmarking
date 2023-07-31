@@ -1,7 +1,20 @@
 import * as ethers from "ethers";
 import { DURATION_MINUTES } from "../oracleOps";
 
-// Gas costs summary matrix
+/** Gas costs summary matrix
+ * Displays a summary of the gas costs for each network.
+ *
+ * HEADERS:
+ * networks = Name of the network
+ * gasPrice Gwei = Gas price used for the transactions
+ * deploy $ = Cost of deploying the contract
+ * registerDataProvider $ = Cost of registering the data providers
+ * updatePrice $ = Cost of updating the price for all data providers (e.g. x3)
+ * avg. $ per updatePrice = Average cost of updating the price for a single data provider
+ * finalizePrice $ = Cost of finalizing the price from the owner
+ * total # of txs = Total number of transactions for a given data provider
+ * total cost = Total cost of all transactions for entire script
+ */
 export function displayGasCostsMatrix(gasCosts, networks) {
   const header = [
     "networks  ",
@@ -36,7 +49,7 @@ export function displayGasCostsMatrix(gasCosts, networks) {
       gasCosts[network.name].update.totalGasCost.toString(),
     );
     const finalizeCost = ethers.utils.formatEther(
-      gasCosts[network.name].finalize.toString(),
+      gasCosts[network.name].finalize.totalGasCost.toString(),
     );
 
     // Divide by 3 as there are 3 data providers and this is total number of transactions for all data providers
@@ -61,7 +74,11 @@ export function displayGasCostsMatrix(gasCosts, networks) {
             gasCosts[network.name].update.totalGasCost.toString(),
           ),
         )
-        .add(ethers.BigNumber.from(gasCosts[network.name].finalize.toString())),
+        .add(
+          ethers.BigNumber.from(
+            gasCosts[network.name].finalize.totalGasCost.toString(),
+          ),
+        ),
     );
 
     networkData.push([

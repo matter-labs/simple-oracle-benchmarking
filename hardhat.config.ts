@@ -14,7 +14,8 @@ const zkSyncTestnet =
         zksync: true,
       }
     : {
-        url: "https://testnet.era.zksync.dev",
+        // TODO: change to testnet
+        url: "http://localhost:3050",
         ethNetwork: "goerli",
         zksync: true,
         // contract verification endpoint
@@ -36,6 +37,18 @@ const config: HardhatUserConfig = {
     optimismTestnet: {
       url: "https://goerli.optimism.io",
       chainId: 5, 
+    },
+    polygonMumbaiTestnet: {
+      url: "https://polygon-mumbai-bor.publicnode.com",
+      chainId: 80001, 
+    },
+    polygonzkEVMTestnet: {
+      url: "https://rpc.public.zkevm-test.net",
+      chainId: 1442, 
+    },
+    arbitrumTestnet: {
+      url: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+      chainId: 421613, 
     },
   },
   solidity: {
