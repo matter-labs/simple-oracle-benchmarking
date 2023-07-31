@@ -1,6 +1,6 @@
 import {
   deployZkSyncLocalTestnet,
-  deployOptimismTestnet,
+  deployToTestnet,
 } from "./utils/deploymentUtils";
 import dotenv from "dotenv";
 dotenv.config();
@@ -25,24 +25,24 @@ export const networks = [
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployZkSyncLocalTestnet,
   },
-  //   {
-  //     name: "OptimismTestnet",
-  //     rpcEndpoint: "https://goerli.optimism.io",
-  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //     deployFunc: deployOptimismTestnet,
-  //   },
+  // {
+  //   name: "OptimismTestnet",
+  //   rpcEndpoint: "https://goerli.optimism.io",
+  //   richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //   deployFunc: deployToTestnet,
+  // },
   //   {
   //     name: "polygonzkEVMTestnet",
   //     rpcEndpoint: "https://rpc.public.zkevm-test.net",
   //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //     deployFunc: deployOptimismTestnet,
+  //     deployFunc: deployToTestnet,
   //   },
-  //   {
-  //     name: "polygonMumbaiTestnet",
-  //     rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
-  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //     deployFunc: deployOptimismTestnet,
-  //   },
+  //    {
+  //       name: "polygonMumbaiTestnet",
+  //       rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
+  //       richWalletPK: process.env.PERSONAL_WALLET_PRIVATE_KEY || "",
+  //       deployFunc: deployToTestnet,
+  //     },
   //   {
   //     name: "arbitrumTestnet",
   //     rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",

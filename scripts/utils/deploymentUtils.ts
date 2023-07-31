@@ -30,7 +30,7 @@ export async function deployZkSyncLocalTestnet(
   return contract;
 }
 
-export async function deployOptimismTestnet(
+export async function deployToTestnet(
   networkConfig: any,
   deployer: ethers.Wallet,
 ): Promise<DeployedContract> {
@@ -65,7 +65,6 @@ export async function deployContract(
 
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
   const contractInstance = await contractFactory.deploy();
-
   if (!contractInstance) {
     throw new Error("Failed to deploy the contract.");
   }
@@ -77,7 +76,7 @@ export async function deployContract(
 
   const gasLimit = receipt.deployTransaction.gasLimit;
   const gasPrice =
-    receipt.deployTransaction.gasPrice || ethers.BigNumber.from(250_000_000);
+    receipt.deployTransaction.gasPrice || (await deployer.getGasPrice());
 
   if (!gasLimit || !gasPrice) {
     throw new Error(

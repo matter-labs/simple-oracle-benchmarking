@@ -67,7 +67,7 @@ async function main() {
       connectedWallets,
     );
 
-    console.log("Finalizing price: ");
+    console.log("\nFinalizing price: ");
     gasCosts[networkConfig.name].finalize = await finalizePrices(
       contract.address,
       networkConfig.rpcEndpoint,

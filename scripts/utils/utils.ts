@@ -12,7 +12,7 @@ import { DURATION_MINUTES } from "../oracleOps";
  * updatePrice $ = Cost of updating the price for all data providers (e.g. x3)
  * avg. $ per updatePrice = Average cost of updating the price for a single data provider
  * finalizePrice $ = Cost of finalizing the price from the owner
- * total # of txs = Total number of transactions for a given data provider
+ * # of updatePrice txs = Total number of transactions for a given data provider
  * total cost = Total cost of all transactions for entire script
  */
 export function displayGasCostsMatrix(gasCosts, networks) {
@@ -24,7 +24,7 @@ export function displayGasCostsMatrix(gasCosts, networks) {
     "updatePrice $  ",
     "avg. $ per updatePrice  ",
     "finalizePrice $  ",
-    "total # of txs  ",
+    "# of updatePrice txs  ",
     "total cost  ",
   ];
   const networkData = [];
@@ -52,8 +52,7 @@ export function displayGasCostsMatrix(gasCosts, networks) {
       gasCosts[network.name].finalize.totalGasCost.toString(),
     );
 
-    // Divide by 3 as there are 3 data providers and this is total number of transactions for all data providers
-    const totalTxs = gasCosts[network.name].update.totalTxCount / 3;
+    const totalTxs = gasCosts[network.name].update.totalTxCount;
 
     let avgCostPerUpdate = ethers.BigNumber.from(0);
 
