@@ -17,33 +17,33 @@ export const networks = [
   // TODO: make this easy to switch between local and testnet and mainnet
   {
     name: "zkSyncTestnet",
-    rpcEndpoint: "http://localhost:8011",
-    // rpcEndpoint: "https://testnet.era.zksync.dev",
+    // rpcEndpoint: "http://localhost:8011",
+    rpcEndpoint: "https://testnet.era.zksync.dev",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToZkSync,
   },
-  // {
-  //   name: "OptimismTestnet",
-  //   rpcEndpoint: "https://goerli.optimism.io",
-  //   richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //   deployFunc: deployToTestnet,
-  // },
-  //   {
-  //     name: "polygonzkEVMTestnet",
-  //     rpcEndpoint: "https://rpc.public.zkevm-test.net",
-  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //     deployFunc: deployToTestnet,
-  //   },
-  //    {
-  //       name: "polygonMumbaiTestnet",
-  //       rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
-  //       richWalletPK: process.env.PERSONAL_WALLET_PRIVATE_KEY || "",
-  //       deployFunc: deployToTestnet,
-  //     },
-  //   {
-  //     name: "arbitrumTestnet",
-  //     rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
-  //     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-  //     deployFunc: deployOptimismTestnet,
-  //   },
+  {
+    name: "OptimismTestnet",
+    rpcEndpoint: "https://goerli.optimism.io",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
+  {
+    name: "polygonzkEVMTestnet",
+    rpcEndpoint: "https://rpc.public.zkevm-test.net",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
+  {
+    name: "polygonMumbaiTestnet",
+    rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
+    richWalletPK: process.env.PERSONAL_WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
+  {
+    name: "arbitrumTestnet",
+    rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
 ];

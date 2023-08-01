@@ -14,8 +14,7 @@ const zkSyncTestnet =
         zksync: true,
       }
     : {
-        // TODO: change to testnet
-        url: "http://localhost:8011",
+        url: "https://testnet.era.zksync.dev",
         ethNetwork: "goerli",
         zksync: true,
         // contract verification endpoint

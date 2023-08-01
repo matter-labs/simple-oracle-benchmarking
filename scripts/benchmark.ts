@@ -9,7 +9,7 @@ import {
 import { networks } from "./networks";
 
 // fund amount in ETH for each data provider
-const FUND_AMOUNT = "10";
+const FUND_AMOUNT = ".1";
 
 // Create new data providers
 const dataProviders = Array(3)
