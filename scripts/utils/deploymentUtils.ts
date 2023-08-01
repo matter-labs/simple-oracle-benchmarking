@@ -2,10 +2,7 @@ import * as ethers from "ethers";
 import * as ContractArtifact from "../../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { Wallet, Provider } from "zksync-web3";
-
-const LOCALHOST_URL = "http://localhost:3050";
-const ZKSYNC_TESTNET = "https://testnet.era.zksync.dev";
+import { Wallet } from "zksync-web3";
 
 interface DeployedContract {
   address: string;
@@ -13,70 +10,75 @@ interface DeployedContract {
 }
 
 /**
- * Deploys a contract to zkSync Era network.
- * @param {any} networkConfig - The network configuration object.
- * @param {ethers.Wallet} deployer - The deployer's wallet.
- * @returns {Promise<DeployedContract>} - A promise that resolves to the deployed contract.
+ * Deploys the SimpleOracle contract to the zkSync Era network.
+ * @param networkConfig The network configuration object.
+ * @param deployerWallet The deployer's wallet.
+ * @returns The deployed contract details.
  */
-export async function deployZkSyncLocalTestnet(
+export async function deployToZkSync(
   networkConfig: any,
-  deployer: ethers.Wallet,
+  deployerWallet: ethers.Wallet,
 ): Promise<DeployedContract> {
-  let zkProvider = new Provider(networkConfig.rpcEndpoint);
-  let zkWallet = new Wallet(networkConfig.richWalletPK, zkProvider);
-  let zkDeployer = zkWallet.connect(zkProvider);
-  let contract = await deployContract(networkConfig.rpcEndpoint, zkDeployer);
-  console.log("Contract deployed to", contract.address);
-  return contract;
+  const wallet = new Wallet(deployerWallet.privateKey);
+  const deployer = new Deployer(hre, wallet);
+  const artifact = await deployer.loadArtifact("SimpleOracle");
+
+  const deploymentFee = await deployer.estimateDeployFee(artifact, []);
+  console.log(
+    `Estimated deployment cost: ${ethers.utils.formatEther(
+      deploymentFee.toString(),
+    )} ETH`,
+  );
+
+  const contract = await deployer.deploy(artifact, []);
+  return await recordDeployGasCosts(
+    networkConfig.rpcEndpoint,
+    deployer.ethWallet,
+    contract,
+  );
 }
 
+/**
+ * Deploys the SimpleOracle contract to a testnet.
+ * @param networkConfig The network configuration object.
+ * @param deployer The deployer's wallet.
+ * @returns The deployed contract details.
+ */
 export async function deployToTestnet(
   networkConfig: any,
   deployer: ethers.Wallet,
 ): Promise<DeployedContract> {
-  let contract = await deployContract(networkConfig.rpcEndpoint, deployer);
-  console.log("Contract deployed to", contract.address);
-  return contract;
+  const { bytecode, abi } = ContractArtifact;
+  const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
+  const contractInstance = await contractFactory.deploy();
+
+  return await recordDeployGasCosts(
+    networkConfig.rpcEndpoint,
+    deployer,
+    contractInstance,
+  );
 }
 
 /**
- * Deploys a contract to the specified network using the provided deployer wallet.
- * @param {string} networkName - The name of the network to deploy the contract to.
- * @param {any} deployerWallet - The wallet to use for deploying the contract.
- * @returns {Promise<{ address: string, gas: number }>} An object containing the deployed contract's address and gas used.
- * @throws {Error} If the contract bytecode or ABI is missing, or if the contract deployment fails.
+ * Records the gas costs of deploying a contract.
+ * @param networkName The name of the network.
+ * @param deployerWallet The deployer's wallet.
+ * @param contractInstance The instance of the deployed contract.
+ * @returns The deployed contract's address and gas used.
  */
-export async function deployContract(
+export async function recordDeployGasCosts(
   networkName: string,
-  deployerWallet: any,
-): Promise<{ address: string; gas: number }> {
+  deployerWallet: ethers.Wallet,
+  contractInstance: ethers.Contract,
+): Promise<DeployedContract> {
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
-    throw new Error("Missing contract bytecode or ABI.");
-  }
-
-  const bytecode = ContractArtifact.bytecode;
-  const abi = ContractArtifact.abi;
-  // NOTE: This is specifically for zkSync
-  // having issues not using Deployer class from hardhat-zksync-deploy
-  let deployer =
-    networkName === LOCALHOST_URL || networkName === ZKSYNC_TESTNET
-      ? new Deployer(hre, deployerWallet).ethWallet
-      : deployerWallet;
-
-  const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
-  const contractInstance = await contractFactory.deploy();
-  if (!contractInstance) {
-    throw new Error("Failed to deploy the contract.");
+    throw new Error("Contract bytecode or ABI is missing.");
   }
 
   const receipt = await contractInstance.deployed();
-  console.log(
-    `\nSimpleOracle deployed to ${networkName} at ${contractInstance.address}`,
-  );
-
   const gasLimit = receipt.deployTransaction.gasLimit;
   const gasPrice =
-    receipt.deployTransaction.gasPrice || (await deployer.getGasPrice());
+    receipt.deployTransaction.gasPrice || (await deployerWallet.getGasPrice());
 
   if (!gasLimit || !gasPrice) {
     throw new Error(
@@ -84,6 +86,15 @@ export async function deployContract(
     );
   }
 
+  if (!gasLimit || !gasPrice) {
+    throw new Error(
+      "Unable to retrieve gas information from the deploy transaction.",
+    );
+  }
+
+  console.log(
+    `SimpleOracle deployed to ${networkName} at ${contractInstance.address}`,
+  );
   return {
     address: contractInstance.address,
     gas: gasLimit.mul(gasPrice).toNumber(),

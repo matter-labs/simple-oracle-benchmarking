@@ -1,7 +1,4 @@
-import {
-  deployZkSyncLocalTestnet,
-  deployToTestnet,
-} from "./utils/deploymentUtils";
+import { deployToZkSync, deployToTestnet } from "./utils/deploymentUtils";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -20,10 +17,10 @@ export const networks = [
   // TODO: make this easy to switch between local and testnet and mainnet
   {
     name: "zkSyncTestnet",
-    rpcEndpoint: "http://localhost:3050",
+    rpcEndpoint: "http://localhost:8011",
     // rpcEndpoint: "https://testnet.era.zksync.dev",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-    deployFunc: deployZkSyncLocalTestnet,
+    deployFunc: deployToZkSync,
   },
   // {
   //   name: "OptimismTestnet",

@@ -9,13 +9,13 @@ import "hardhat-gas-reporter";
 const zkSyncTestnet =
   process.env.NODE_ENV == "test"
     ? {
-        url: "http://localhost:3050",
+        url: "http://localhost:8011",
         ethNetwork: "http://localhost:8545",
         zksync: true,
       }
     : {
         // TODO: change to testnet
-        url: "http://localhost:3050",
+        url: "http://localhost:8011",
         ethNetwork: "goerli",
         zksync: true,
         // contract verification endpoint

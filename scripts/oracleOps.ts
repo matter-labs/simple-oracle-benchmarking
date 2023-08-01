@@ -164,7 +164,7 @@ export async function updatePrices(
 }
 
 /**
- * Calls the `finalizePrice` function on the provided contract every second for the configured duration.
+ * Calls the `finalizePrice` function on the provided contract and calculates the total gas costs.
  *
  * @param {string} contractAddress - Address of the contract on which the `finalizePrice` function should be called.
  * @param {string} networkName - Name of the network to connect to using the JsonRpcProvider.
@@ -174,8 +174,6 @@ export async function updatePrices(
  *   totalGasCost: ethers.BigNumber;
  * }>} An object containing:
  *   - totalGasCost: The grand total gas cost for all the `finalizePrice` calls.
- *
- * Note: The function runs a loop that continually calls the `finalizePrice` function on the given contract until the DURATION_MINUTES is reached.
  */
 export async function finalizePrices(
   contractAddress: string,
@@ -192,34 +190,24 @@ export async function finalizePrices(
     connectedWallet,
   );
 
-  const FINALIZE_INTERVAL_MILLISECONDS = 1000;
-  const endTime = Date.now() + DURATION_MINUTES * 60 * 1000;
-
   let totalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
 
-  while (Date.now() < endTime) {
-    const tx = await contract.finalizePrice();
-    const receipt = await tx.wait();
-    const gasUsed = receipt.gasUsed;
-    gasPrice =
-      receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
-    const cost = gasUsed.mul(gasPrice);
+  const tx = await contract.finalizePrice();
+  const receipt = await tx.wait();
+  const gasUsed = receipt.gasUsed;
+  gasPrice = receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
+  const cost = gasUsed.mul(gasPrice);
 
-    totalGasCost = totalGasCost.add(cost);
+  totalGasCost = totalGasCost.add(cost);
 
-    console.log(
-      `Called finalizePrice on ${networkName} from ${
-        wallet.address
-      }. Gas used: ${gasUsed.toString()}. Cost for this transaction: ${ethers.utils.formatEther(
-        cost.toString(),
-      )} ETH`,
-    );
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, FINALIZE_INTERVAL_MILLISECONDS),
-    );
-  }
+  console.log(
+    `Called finalizePrice on ${networkName} from ${
+      wallet.address
+    }. Gas used: ${gasUsed.toString()}. Cost for this transaction: ${ethers.utils.formatEther(
+      cost.toString(),
+    )} ETH`,
+  );
 
   console.log(
     `\nGrand Total Gas Cost for all finalizePrice calls: ${ethers.utils.formatEther(
