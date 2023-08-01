@@ -20,7 +20,7 @@ export async function registerDataProviders(
   contractAddress: string,
   networkName: string,
   wallets: ethers.Wallet[],
-): Promise<number> {
+): Promise<{ totalGasCost: number; totalGasUsed: ethers.BigNumber }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   wallets = wallets.map((wallet) => wallet.connect(provider));
   const contract = new ethers.Contract(
@@ -30,6 +30,7 @@ export async function registerDataProviders(
   );
 
   let totalGas = ethers.BigNumber.from(0);
+  let totalGasUsed = ethers.BigNumber.from(0);
 
   for (let wallet of wallets) {
     let tx = await contract.connect(wallet).registerDataProvider();
@@ -49,9 +50,13 @@ export async function registerDataProviders(
     }
 
     totalGas = totalGas.add(gasLimit.mul(gasPrice));
+    totalGasUsed = totalGasUsed.add(receipt.gasUsed);
   }
 
-  return totalGas.toNumber();
+  return {
+    totalGasCost: totalGas.toNumber(),
+    totalGasUsed: totalGasUsed,
+  };
 }
 /**
  * Updates prices on a given contract using multiple data providers for a specific duration and calculates the total gas costs.
@@ -80,6 +85,7 @@ export async function updatePrices(
   totalGasCost: ethers.BigNumber;
   gasPrice: ethers.BigNumber;
   totalTxCount: number;
+  totalGasUsed: ethers.BigNumber;
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   wallets = wallets.map((wallet) => wallet.connect(provider));
@@ -89,12 +95,12 @@ export async function updatePrices(
     wallets[0],
   );
 
-  const UPDATE_INTERVAL_MILLISECONDS = 1000;
   const endTime = Date.now() + DURATION_MINUTES * 60 * 1000;
 
   let results: Record<string, any> = {};
   let grandTotalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
+  let totalGasUsed = ethers.BigNumber.from(0);
   let totalTxCount = 0;
 
   await Promise.all(
@@ -114,6 +120,7 @@ export async function updatePrices(
         const receipt = await tx.wait();
 
         const gasUsed = receipt.gasUsed;
+        totalGasUsed = totalGasUsed.add(gasUsed);
         gasPrice =
           receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
         const cost = gasUsed.mul(gasPrice);
@@ -131,12 +138,6 @@ export async function updatePrices(
             cost.toString(),
           )} ETH`,
         );
-
-        const sleepDuration = Math.max(
-          UPDATE_INTERVAL_MILLISECONDS - (Date.now() - tx.timestamp),
-          0,
-        );
-        await new Promise((resolve) => setTimeout(resolve, sleepDuration));
       }
       results[walletKey].costs.push(results[walletKey].totalGas);
     }),
@@ -160,6 +161,7 @@ export async function updatePrices(
     totalGasCost: grandTotalGasCost,
     gasPrice: gasPrice,
     totalTxCount: totalTxCount,
+    totalGasUsed: totalGasUsed,
   };
 }
 
@@ -181,6 +183,7 @@ export async function finalizePrices(
   wallet: ethers.Wallet,
 ): Promise<{
   totalGasCost: ethers.BigNumber;
+  gasUsed: ethers.BigNumber;
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   const connectedWallet = wallet.connect(provider);
@@ -217,5 +220,6 @@ export async function finalizePrices(
 
   return {
     totalGasCost,
+    gasUsed: gasUsed,
   };
 }

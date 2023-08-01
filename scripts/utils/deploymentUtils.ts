@@ -7,6 +7,7 @@ import { Wallet } from "zksync-web3";
 interface DeployedContract {
   address: string;
   gas: number;
+  gasUsed: ethers.BigNumber;
 }
 
 /**
@@ -50,7 +51,9 @@ export async function deployToTestnet(
 ): Promise<DeployedContract> {
   const { bytecode, abi } = ContractArtifact;
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
-  const contractInstance = await contractFactory.deploy();
+  const contractInstance = await contractFactory.deploy({
+    gasLimit: 50000000,
+  });
 
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
@@ -76,6 +79,9 @@ export async function recordDeployGasCosts(
   }
 
   const receipt = await contractInstance.deployed();
+  const gasUsed = await receipt.deployTransaction
+    .wait()
+    .then((tx) => tx.gasUsed);
   const gasLimit = receipt.deployTransaction.gasLimit;
   const gasPrice =
     receipt.deployTransaction.gasPrice || (await deployerWallet.getGasPrice());
@@ -98,5 +104,6 @@ export async function recordDeployGasCosts(
   return {
     address: contractInstance.address,
     gas: gasLimit.mul(gasPrice).toNumber(),
+    gasUsed: gasUsed,
   };
 }

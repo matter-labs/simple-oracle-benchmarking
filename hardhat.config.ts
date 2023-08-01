@@ -27,27 +27,62 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "zkSyncLocalnet",
   networks: {
     hardhat: {
       zksync: false,
     },
-    zkSyncTestnet,
+    zkSyncLocalnet: {
+      url: "http://localhost:3050",
+      chainId: 270, 
+    },
+    zkSyncTestnet: {
+      url: "https://testnet.era.zksync.dev",
+      ethNetwork: "goerli",
+      zksync: true,
+      chainId: 280, 
+    },
+    zkSyncEraMainnet: {
+      url: "https://mainnet.era.zksync.io",
+      ethNetwork: "mainnet",
+      zksync: true,
+      chainId: 324, 
+    },
+    optimismLocalNet: {
+      url: "http://localhost:9545",
+      chainId: 901, 
+    },
     optimismTestnet: {
       url: "https://goerli.optimism.io",
       chainId: 5, 
     },
-    polygonMumbaiTestnet: {
-      url: "https://polygon-mumbai-bor.publicnode.com",
-      chainId: 80001,
+    OptimismMainnet: {
+      url: "https://optimism.publicnode.com",
+      chainId: 10, 
     },
     polygonzkEVMTestnet: {
       url: "https://rpc.public.zkevm-test.net",
       chainId: 1442, 
     },
+    polygonzkEVMLocalNet: {
+      url: "http://localhost:9091",
+      chainId: 1001,
+    },
+    PolygonzkEVMMainnet: {
+      url: "https://1rpc.io/polygon/zkevm",
+      chainId: 1101,
+    },
+    arbitrumLocalDev : {
+      url: 'http://localhost:8547',
+      chainId: 412346,
+    },
     arbitrumTestnet: {
       url: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
       chainId: 421613, 
+    },
+    ArbitrumMainnet: {
+      url: "https://endpoints.omniatech.io/v1/arbitrum/one/public",
+      chainId: 42161, 
     },
   },
   solidity: {

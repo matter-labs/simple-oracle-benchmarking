@@ -136,5 +136,7 @@ artifacts/
 cache/
 /scripts/.env
 /scripts/local-setups/optimism
+/scripts/local-setups/nitro-testnode
+/scripts/local-setups/zkevm-node
 /scripts/local-setups/local-setup
 .env

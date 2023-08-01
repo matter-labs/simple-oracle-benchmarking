@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 import { displayGasCostsMatrix } from "./utils/utils";
 import { fundAccount } from "./utils/fundingUtils";
 import {
@@ -11,6 +13,25 @@ import { networks } from "./networks";
 // fund amount in ETH for each data provider
 const FUND_AMOUNT = ".1";
 
+const argv = yargs(hideBin(process.argv)).option("network", {
+  type: "string",
+  description: "Specify the network to test with",
+}).argv;
+
+// Filter networks based on the provided argument
+const filteredNetworks = networks.filter((network) => {
+  if (argv.network === "testnet") {
+    return (
+      !network.name.includes("localnet") && !network.name.includes("mainnet")
+    );
+  } else if (argv.network === "mainnet") {
+    return (
+      !network.name.includes("localnet") && !network.name.includes("testnet")
+    );
+  }
+  return network.name === argv.network;
+});
+
 // Create new data providers
 const dataProviders = Array(3)
   .fill(null)
@@ -19,7 +40,7 @@ const dataProviders = Array(3)
 let gasCosts: any = {};
 
 async function main() {
-  for (let networkConfig of networks) {
+  for (let networkConfig of filteredNetworks) {
     gasCosts[networkConfig.name] = {};
 
     // Initialize Network
@@ -36,7 +57,10 @@ async function main() {
 
     // Deploy the contract
     const contract = await networkConfig.deployFunc(networkConfig, deployer);
-    gasCosts[networkConfig.name].deploy = contract.gas;
+    gasCosts[networkConfig.name].deploy = {
+      gas: contract.gas,
+      gasUsed: contract.gasUsed,
+    };
 
     // Fund data providers
     console.log("\nFunding data providers: ");
@@ -74,7 +98,7 @@ async function main() {
     );
   }
 
-  displayGasCostsMatrix(gasCosts, networks);
+  displayGasCostsMatrix(gasCosts, filteredNetworks);
 }
 
 main().catch(console.error);
