@@ -42,7 +42,7 @@ Then execute the script you want to run:
 ./zksync.sh | ./optimism.sh | ./arbitrum.sh | ./polygonzkEVM.sh
 ```
 
-If you're planning to run this against a local zkSync network, start the zkSync local environment first. Ensure it runs against the Dockerized setup. 
+**Note:** If you want to learn more about a local zkSync network, start the zkSync local environment first. 
 
 📖 [zkSync Docs - Testing](https://era.zksync.io/docs/tools/testing/)
 
@@ -70,10 +70,3 @@ yarn run:benchmark --network=<NETWORK | testnet | mainnet >
 - `yarn run:benchmark --network=<NETWORK>`: Starts benchmarking script from `benchmark.ts`
 - `yarn deploy`: Deploy SimpleOracle.sol
 - `yarn fix:fmt`: Fixes formatting
-
-## Testnets 🌍
-
-To run against testnets like zkSync, Polygon Mumbai, Polygon zkEVM, Optimism, and Arbitrium, ensure you have funds in a wallet for each network to cover the deployment and oracle operation costs.
-
-- Uncomment the desired networks in `/scripts/networks`.
-- Run script `yarn run:benchmark`

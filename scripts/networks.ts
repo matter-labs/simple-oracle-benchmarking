@@ -13,10 +13,6 @@ dotenv.config();
  */
 export const networks = [
   {
-<<<<<<< Updated upstream
-    name: "zkSyncTestnet",
-    // rpcEndpoint: "http://localhost:8011",
-=======
     name: "zkSyncLocalnet",
     rpcEndpoint: "http://localhost:3050",
     richWalletPK: process.env.ZK_WALLET_PRIVATE_KEY || "",
@@ -24,14 +20,11 @@ export const networks = [
   },
   {
     name: "zkSyncEraTestnet",
->>>>>>> Stashed changes
     rpcEndpoint: "https://testnet.era.zksync.dev",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToZkSync,
   },
   {
-<<<<<<< Updated upstream
-=======
     name: "zkSyncEraMainnet",
     rpcEndpoint: "https://mainnet.era.zksync.io",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
@@ -62,33 +55,18 @@ export const networks = [
     deployFunc: deployToTestnet,
   },
   {
->>>>>>> Stashed changes
     name: "OptimismTestnet",
     rpcEndpoint: "https://goerli.optimism.io",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
   {
-<<<<<<< Updated upstream
-    name: "polygonzkEVMTestnet",
-    rpcEndpoint: "https://rpc.public.zkevm-test.net",
-=======
     name: "OptimismMainnet",
     rpcEndpoint: "https://optimism.publicnode.com",
->>>>>>> Stashed changes
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
   {
-<<<<<<< Updated upstream
-    name: "polygonMumbaiTestnet",
-    rpcEndpoint: "https://polygon-mumbai-bor.publicnode.com",
-    richWalletPK: process.env.PERSONAL_WALLET_PRIVATE_KEY || "",
-    deployFunc: deployToTestnet,
-  },
-  {
-    name: "arbitrumTestnet",
-=======
     name: "ArbitrumLocalnet",
     rpcEndpoint: "http://localhost:8547",
     richWalletPK: process.env.ARB_WALLET_PRIVATE_KEY || "",
@@ -96,18 +74,14 @@ export const networks = [
   },
   {
     name: "ArbitrumTestnet",
->>>>>>> Stashed changes
     rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
-<<<<<<< Updated upstream
-=======
   {
     name: "ArbitrumMainnet",
     rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/one/public",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
->>>>>>> Stashed changes
 ];
