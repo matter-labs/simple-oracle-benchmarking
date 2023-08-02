@@ -2,7 +2,7 @@ import * as ethers from "ethers";
 import * as ContractArtifact from "../../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { Wallet } from "zksync-web3";
+import { Wallet, Provider } from "zksync-web3";
 
 interface DeployedContract {
   address: string;
@@ -20,18 +20,24 @@ export async function deployToZkSync(
   networkConfig: any,
   deployerWallet: ethers.Wallet,
 ): Promise<DeployedContract> {
-  const wallet = new Wallet(deployerWallet.privateKey);
+  console.log("Deploying to zkSync Era network", networkConfig.rpcEndpoint);
+  // const provider = new Provider(
+  //   networkConfig.rpcEndpoint,
+  // );
+  const wallet = new Wallet(networkConfig.richWalletPK);
   const deployer = new Deployer(hre, wallet);
+  
   const artifact = await deployer.loadArtifact("SimpleOracle");
-
+  console.log("Estimating deployment cost");
   const deploymentFee = await deployer.estimateDeployFee(artifact, []);
   console.log(
     `Estimated deployment cost: ${ethers.utils.formatEther(
       deploymentFee.toString(),
     )} ETH`,
   );
-
+  console.log("Deploying contract");
   const contract = await deployer.deploy(artifact, []);
+  console.log("Contract deployed");
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
     deployer.ethWallet,
@@ -74,6 +80,7 @@ export async function recordDeployGasCosts(
   deployerWallet: ethers.Wallet,
   contractInstance: ethers.Contract,
 ): Promise<DeployedContract> {
+  console.log("Recording gas costs");
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
     throw new Error("Contract bytecode or ABI is missing.");
   }

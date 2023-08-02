@@ -9,9 +9,11 @@ import {
   updatePrices,
 } from "./oracleOps";
 import { networks } from "./networks";
+import dotenv from "dotenv";
+dotenv.config();
 
 // fund amount in ETH for each data provider
-const FUND_AMOUNT = ".1";
+const FUND_AMOUNT = ".01";
 
 const argv = yargs(hideBin(process.argv)).option("network", {
   type: "string",
@@ -20,16 +22,14 @@ const argv = yargs(hideBin(process.argv)).option("network", {
 
 // Filter networks based on the provided argument
 const filteredNetworks = networks.filter((network) => {
-  if (argv.network === "testnet") {
-    return (
-      !network.name.includes("localnet") && !network.name.includes("mainnet")
-    );
-  } else if (argv.network === "mainnet") {
-    return (
-      !network.name.includes("localnet") && !network.name.includes("testnet")
-    );
+  switch (argv.network) {
+    case "testnet":
+      return network.name.includes("Testnet");
+    case "mainnet":
+      return network.name.includes("Mainnet");
+    default:
+      return network.name === argv.network;
   }
-  return network.name === argv.network;
 });
 
 // Create new data providers
@@ -45,6 +45,7 @@ async function main() {
 
     // Initialize Network
     console.log(`\nDeploying on: ${networkConfig.name}`);
+    console.log("Initializing network: ", networkConfig.rpcEndpoint);
     const provider = new ethers.providers.JsonRpcProvider(
       networkConfig.rpcEndpoint,
     );

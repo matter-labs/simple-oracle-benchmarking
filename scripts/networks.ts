@@ -20,7 +20,7 @@ export const networks = [
   },
   {
     name: "zkSyncEraTestnet",
-    rpcEndpoint: "https://testnet.era.zksync.dev",
+    rpcEndpoint: "https://zksync2-testnet.zksync.dev",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToZkSync,
   },
@@ -36,12 +36,12 @@ export const networks = [
     richWalletPK: process.env.POLY_WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
-  {
-    name: "PolygonzkEVMTestnet",
-    rpcEndpoint: "https://rpc.public.zkevm-test.net",
-    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
-    deployFunc: deployToTestnet,
-  },
+  // {
+  //   name: "PolygonzkEVMTestnet",
+  //   rpcEndpoint: "https://rpc.public.zkevm-test.net",
+  //   richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+  //   deployFunc: deployToTestnet,
+  // },
   {
     name: "PolygonzkEVMMainnet",
     rpcEndpoint: "https://1rpc.io/polygon/zkevm",
