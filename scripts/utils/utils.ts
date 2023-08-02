@@ -217,7 +217,7 @@ export function displayGasCostsMatrix(gasCosts, networks) {
   console.log("Finalize Price Data:");
   drawTable(
     ["networks", "finalizePrice $", "finalize gasUsed"],
-    networkData.map((row) => [row[0], row[10], row[11]]), // Corrected here, it should be row[10] and row[11] for finalizePrice data.
+    networkData.map((row) => [row[0], row[10], row[11]]),
   );
 
   // Summary Data
