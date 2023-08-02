@@ -26,7 +26,7 @@ export async function deployToZkSync(
   // );
   const wallet = new Wallet(networkConfig.richWalletPK);
   const deployer = new Deployer(hre, wallet);
-  
+
   const artifact = await deployer.loadArtifact("SimpleOracle");
   console.log("Estimating deployment cost");
   const deploymentFee = await deployer.estimateDeployFee(artifact, []);
@@ -57,9 +57,7 @@ export async function deployToTestnet(
 ): Promise<DeployedContract> {
   const { bytecode, abi } = ContractArtifact;
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
-  const contractInstance = await contractFactory.deploy({
-    gasLimit: 50000000,
-  });
+  const contractInstance = await contractFactory.deploy();
 
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
@@ -89,19 +87,13 @@ export async function recordDeployGasCosts(
   const gasUsed = await receipt.deployTransaction
     .wait()
     .then((tx) => tx.gasUsed);
-  const gasLimit = receipt.deployTransaction.gasLimit;
+
   const gasPrice =
     receipt.deployTransaction.gasPrice || (await deployerWallet.getGasPrice());
 
-  if (!gasLimit || !gasPrice) {
+  if (!gasUsed || !gasPrice) {
     throw new Error(
       "Failed to retrieve gas information from the deploy transaction.",
-    );
-  }
-
-  if (!gasLimit || !gasPrice) {
-    throw new Error(
-      "Unable to retrieve gas information from the deploy transaction.",
     );
   }
 
@@ -110,7 +102,7 @@ export async function recordDeployGasCosts(
   );
   return {
     address: contractInstance.address,
-    gas: gasLimit.mul(gasPrice).toNumber(),
+    gas: gasUsed.mul(gasPrice).toNumber(),
     gasUsed: gasUsed,
   };
 }
