@@ -28,8 +28,8 @@ export function displayGasCostsMatrix(gasCosts, networks) {
     "avg. $ per updatePrice  ",
     "finalizePrice $  ",
     "finalize gasUsed",
-    "# of updatePrice txs  ",
-    "total cost  ",
+    "# of txs",
+    "total cost",
   ];
   const networkData = [];
 
@@ -94,6 +94,24 @@ export function displayGasCostsMatrix(gasCosts, networks) {
         ),
     );
 
+    const deployGasUsed2 = ethers.BigNumber.from(
+      gasCosts[network.name].deploy.gasUsed.toString(),
+    );
+    const registerGasUsed2 = ethers.BigNumber.from(
+      gasCosts[network.name].register.totalGasUsed.toString(),
+    );
+    const updateGasUsed2 = ethers.BigNumber.from(
+      gasCosts[network.name].update.totalGasUsed.toString(),
+    );
+    const finalizeGasUsed2 = ethers.BigNumber.from(
+      gasCosts[network.name].finalize.gasUsed.toString(),
+    );
+
+    const totalGasUsed = deployGasUsed2
+      .add(registerGasUsed2)
+      .add(updateGasUsed2)
+      .add(finalizeGasUsed2);
+
     networkData.push([
       network.name,
       gasPrice,
@@ -109,6 +127,7 @@ export function displayGasCostsMatrix(gasCosts, networks) {
       finalizeGasUsed,
       totalTxs,
       totalCost,
+      totalGasUsed,
     ]);
   }
 
@@ -184,26 +203,27 @@ export function displayGasCostsMatrix(gasCosts, networks) {
   // Update Price Data
   console.log("Update Price Data:");
   drawTable(
-    ["networks", "updatePrice $", "update gasUsed"],
-    networkData.map((row) => [row[0], row[6], row[7]]),
+    [
+      "networks",
+      "updatePrice $",
+      "update gasUsed",
+      "avg. $ per updatePrice",
+      "# of updatePrice txs",
+    ],
+    networkData.map((row) => [row[0], row[6], row[7], row[8], row[12]]),
   );
 
   // Finalize Price Data
   console.log("Finalize Price Data:");
   drawTable(
     ["networks", "finalizePrice $", "finalize gasUsed"],
-    networkData.map((row) => [row[0], row[9], row[10]]),
+    networkData.map((row) => [row[0], row[10], row[11]]),
   );
 
   // Summary Data
   console.log("Summary Data:");
   drawTable(
-    [
-      "networks",
-      "avg. $ per updatePrice",
-      "# of updatePrice txs",
-      "total cost",
-    ],
-    networkData.map((row) => [row[0], row[8], row[11], row[12]]),
+    ["networks", "total cost", "total gasUsed"],
+    networkData.map((row) => [row[0], row[13], row[14]]),
   );
 }

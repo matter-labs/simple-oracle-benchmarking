@@ -39,17 +39,17 @@ export async function registerDataProviders(
       `Registered data provider on ${networkName}: ${wallet.address}`,
     );
 
-    let gasLimit = receipt.gasUsed;
+    let gasUsed = receipt.gasUsed;
     let gasPrice =
       receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
 
-    if (!gasLimit || !gasPrice) {
+    if (!gasUsed || !gasPrice) {
       throw new Error(
         "Failed to retrieve gas information from the registration transaction.",
       );
     }
 
-    totalGas = totalGas.add(gasLimit.mul(gasPrice));
+    totalGas = totalGas.add(gasUsed.mul(gasPrice));
     totalGasUsed = totalGasUsed.add(receipt.gasUsed);
   }
 

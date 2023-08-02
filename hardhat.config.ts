@@ -35,9 +35,11 @@ const config: HardhatUserConfig = {
     zkSyncLocalnet: {
       url: "http://localhost:3050",
       chainId: 270, 
+      ethNetwork: "goerli",
+      zksync: true,
     },
     zkSyncTestnet: {
-      url: "https://testnet.era.zksync.dev",
+      url: "https://zksync2-testnet.zksync.dev",
       ethNetwork: "goerli",
       zksync: true,
       chainId: 280, 

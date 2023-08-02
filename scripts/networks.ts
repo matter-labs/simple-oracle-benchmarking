@@ -20,7 +20,7 @@ export const networks = [
   },
   {
     name: "zkSyncEraTestnet",
-    rpcEndpoint: "https://testnet.era.zksync.dev",
+    rpcEndpoint: "https://zksync2-testnet.zksync.dev",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToZkSync,
   },
