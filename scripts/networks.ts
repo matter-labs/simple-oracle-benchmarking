@@ -84,4 +84,22 @@ export const networks = [
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
+  {
+    name: "LineaTestnet",
+    rpcEndpoint: "https://rpc.goerli.linea.build/",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
+  {
+    name: "LineaMainnet",
+    rpcEndpoint: "https://linea-mainnet.infura.io/v3",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
+  {
+    name: "ScrollTestnet",
+    rpcEndpoint: "https://alpha-rpc.scroll.io/l2",
+    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    deployFunc: deployToTestnet,
+  },
 ];

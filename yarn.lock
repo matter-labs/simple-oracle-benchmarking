@@ -677,6 +677,11 @@
     fs-extra "^7.0.1"
     node-fetch "^2.6.0"
 
+"@nomiclabs/hardhat-ethers@^2.2.3":
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-ethers/-/hardhat-ethers-2.2.3.tgz#b41053e360c31a32c2640c9a45ee981a7e603fe0"
+  integrity sha512-YhzPdzb612X591FOe68q+qXVXGG2ANZRvDo0RRUtimev85rCrAlv/TLMEZw5c+kq9AbzocLTVX/h2jVIFPL9Xg==
+
 "@nomiclabs/hardhat-etherscan@^3.1.7":
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-etherscan/-/hardhat-etherscan-3.1.7.tgz#72e3d5bd5d0ceb695e097a7f6f5ff6fcbf062b9a"
@@ -1597,6 +1602,11 @@ color-name@~1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
+
+colors.ts@^1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/colors.ts/-/colors.ts-1.0.20.tgz#bb00bacbe10ecd5dad8867816a1f03fd7d78f05e"
+  integrity sha512-MnVQgqGe3S7KLlK0v7rsLQciRgB4NzfRPZ4OZuu8SWNgyJuV651pMqCq7LvJ7eQO586RVspwYvK2ere7xX/m1A==
 
 colors@1.4.0, colors@^1.1.2:
   version "1.4.0"

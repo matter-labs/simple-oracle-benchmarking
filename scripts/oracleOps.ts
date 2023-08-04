@@ -4,6 +4,7 @@ import * as ContractArtifact from "../artifacts-zk/contracts/SimpleOracle.sol/Si
 // DURATION_MINUTES is the number of minutes that the data providers will be updating prices AND
 // the number of minutes that the owner will be finalizing the price.
 export const DURATION_MINUTES = 1;
+export const TX_CAP = 25;
 
 /**
  * Registers multiple wallets as data providers on a given contract and calculates the total gas costs.
@@ -59,9 +60,11 @@ export async function registerDataProviders(
   };
 }
 /**
- * Updates prices on a given contract using multiple data providers for a specific duration and calculates the total gas costs.
- * * Note: The function runs a loop that continually updates prices on the given contract until the DURATION_MINUTES is reached.
+ * Continuously updates prices on a given contract using multiple data providers until a specified duration is reached or a maximum of 20 transactions are executed. The function also calculates the total gas costs.
+ *
+ * * Note: The function runs a loop that continually updates prices on the given contract until the DURATION_MINUTES is reached or 20 transactions are executed.
  * * Note: The prices are randomly generated.
+ * * Note: The function also tracks the balance of each data provider before and after the updates.
  *
  * @param {string} contractAddress - Address of the contract to update prices on.
  * @param {string} networkName - Name of the network to connect to using the JsonRpcProvider.
@@ -71,10 +74,18 @@ export async function registerDataProviders(
  *   individualCosts: Record<string, any>;
  *   totalGasCost: ethers.BigNumber;
  *   gasPrice: ethers.BigNumber;
+ *   totalTxCount: number;
+ *   totalGasUsed: ethers.BigNumber;
+ *   balancesBefore: ethers.BigNumber[];
+ *   balancesAfter: ethers.BigNumber[];
  * }>} An object containing:
  *   - individualCosts: An object mapping each data provider to its associated gas costs details.
  *   - totalGasCost: The grand total gas cost for all data provider updates.
  *   - gasPrice: The gas price used for the transactions.
+ *   - totalTxCount: The total number of transactions executed.
+ *   - totalGasUsed: The total gas used across all transactions.
+ *   - balancesBefore: An array of balances of each data provider before the updates.
+ *   - balancesAfter: An array of balances of each data provider after the updates.
  */
 export async function updatePrices(
   contractAddress: string,
@@ -86,8 +97,11 @@ export async function updatePrices(
   gasPrice: ethers.BigNumber;
   totalTxCount: number;
   totalGasUsed: ethers.BigNumber;
+  balancesBefore: ethers.BigNumber[];
+  balancesAfter: ethers.BigNumber[];
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
+  let txCount = 0;
   wallets = wallets.map((wallet) => wallet.connect(provider));
   const contract = new ethers.Contract(
     contractAddress,
@@ -97,11 +111,16 @@ export async function updatePrices(
 
   const endTime = Date.now() + DURATION_MINUTES * 60 * 1000;
 
+  const balancesBefore = await Promise.all(
+    wallets.map(async (wallet) => await wallet.getBalance()),
+  );
+
   let results: Record<string, any> = {};
   let grandTotalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
   let totalGasUsed = ethers.BigNumber.from(0);
   let totalTxCount = 0;
+  const walletTxCap = Math.floor(TX_CAP / wallets.length);
 
   await Promise.all(
     wallets.map(async (wallet) => {
@@ -114,11 +133,11 @@ export async function updatePrices(
 
       const withSigner = contract.connect(wallet);
 
-      while (Date.now() < endTime) {
+      while (Date.now() < endTime && results[walletKey].txCount < walletTxCap) {
         const randomPrice = Math.floor(Math.random() * 1000);
         const tx = await withSigner.updatePrice(randomPrice);
         const receipt = await tx.wait();
-
+        txCount++;
         const gasUsed = receipt.gasUsed;
         totalGasUsed = totalGasUsed.add(gasUsed);
         gasPrice =
@@ -143,25 +162,18 @@ export async function updatePrices(
     }),
   );
 
-  console.log(
-    `\nGrand Total Gas Cost for all Data Providers: ${ethers.utils.formatEther(
-      grandTotalGasCost.toString(),
-    )} ETH`,
+  const balancesAfter = await Promise.all(
+    wallets.map(async (wallet) => await wallet.getBalance()),
   );
-  console.log(
-    "\nBalances of dataProviders after updatePrice: ",
-    await Promise.all(
-      wallets.map(async (wallet) =>
-        ethers.utils.formatEther(await wallet.getBalance()),
-      ),
-    ),
-  );
+
   return {
     individualCosts: results,
     totalGasCost: grandTotalGasCost,
     gasPrice: gasPrice,
     totalTxCount: totalTxCount,
     totalGasUsed: totalGasUsed,
+    balancesBefore: balancesBefore,
+    balancesAfter: balancesAfter,
   };
 }
 

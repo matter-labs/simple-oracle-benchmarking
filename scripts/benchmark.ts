@@ -14,6 +14,7 @@ dotenv.config();
 
 // fund amount in ETH for each data provider
 const FUND_AMOUNT = ".01";
+export const DATA_PROVIDER_COUNT = 3;
 
 const argv = yargs(hideBin(process.argv)).option("network", {
   type: "string",
@@ -33,7 +34,7 @@ const filteredNetworks = networks.filter((network) => {
 });
 
 // Create new data providers
-const dataProviders = Array(3)
+const dataProviders = Array(DATA_PROVIDER_COUNT)
   .fill(null)
   .map(() => new ethers.Wallet(ethers.Wallet.createRandom().privateKey));
 

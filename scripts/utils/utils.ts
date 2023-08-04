@@ -1,5 +1,7 @@
 import * as ethers from "ethers";
-import { DURATION_MINUTES } from "../oracleOps";
+import { DURATION_MINUTES, TX_CAP } from "../oracleOps";
+import { DATA_PROVIDER_COUNT } from "../benchmark";
+import * as colors from "colors.ts";
 
 /** Gas costs summary matrix
  * Displays a summary of the gas costs for each network.
@@ -8,222 +10,153 @@ import { DURATION_MINUTES } from "../oracleOps";
  * networks = Name of the network
  * gasPrice Gwei = Gas price used for the transactions
  * deploy $ = Cost of deploying the contract
+ * deploy gasUsed = Gas used for deploying the contract
  * registerDataProvider $ = Cost of registering the data providers
+ * register gasUsed = Gas used for registering the data providers
  * updatePrice $ = Cost of updating the price for all data providers (e.g. x3)
- * avg. $ per updatePrice = Average cost of updating the price for a single data provider
+ * balanceBeforeUpdatePrice = Balance of data providers before updatePrice
+ * balanceAfterUpdatePrice = Balance of data providers after updatePrice
+ * deltaBalance = Change in balance of data providers after updatePrice
+ * update gasUsed = Gas used for updating the price for all data providers (e.g. x3)
  * finalizePrice $ = Cost of finalizing the price from the owner
+ * finalize gasUsed = Gas used for finalizing the price from the owner
  * # of updatePrice txs = Total number of transactions for a given data provider
  * total cost = Total cost of all transactions for entire script
+ * total gasUsed = Total gas used for all transactions for entire script
  */
 export function displayGasCostsMatrix(gasCosts, networks) {
-  const header = [
-    "networks  ",
-    "gasPrice Gwei",
-    "deploy $  ",
-    "deploy gasUsed",
-    "registerDataProvider $  ",
-    "register gasUsed",
-    "updatePrice $  ",
-    "update gasUsed",
-    "avg. $ per updatePrice  ",
-    "finalizePrice $  ",
-    "finalize gasUsed",
-    "# of txs",
-    "total cost",
-  ];
-  const networkData = [];
+  const headerColor = (text: string) => colors.colors("blue", text);
+  const dataColor = (text: string) => colors.colors("green", text);
+  const separator = colors.colors(
+    "red",
+    "------------------------------------------------------------",
+  );
 
-  for (let network of networks) {
+  const displayHeader = (text: string) => {
+    console.log(headerColor(text));
+    console.log(separator);
+  };
+
+  const displayDataRow = (label: string, data: any) => {
+    console.log(`${label}: ${dataColor(data)}`);
+  };
+
+  const displayMultiDataRow = (label: string, data: string[]) => {
+    console.log(`${label}:`);
+    data.forEach((item) => {
+      console.log(dataColor(`  - ${item}`));
+    });
+  };
+
+  networks.map((network) => {
     const gasPrice = ethers.utils.formatUnits(
       gasCosts[network.name].update.gasPrice,
       "gwei",
     );
 
-    const deploy = ethers.BigNumber.from(
+    const deployCost = ethers.utils.formatEther(
       gasCosts[network.name].deploy.gas.toString(),
     );
-
     const deployGasUsed = gasCosts[network.name].deploy.gasUsed.toString();
-    const deployCost = ethers.utils.formatEther(deploy.toString());
+
     const registerCost = ethers.utils.formatEther(
       gasCosts[network.name].register.totalGasCost.toString(),
     );
     const registerGasUsed =
       gasCosts[network.name].register.totalGasUsed.toString();
 
-    const updateIndividualProviders =
-      gasCosts[network.name].update.individualCosts;
     const updateTotalCost = ethers.utils.formatEther(
       gasCosts[network.name].update.totalGasCost.toString(),
     );
-    const totalTxs = gasCosts[network.name].update.totalTxCount;
     const updateGasUsed = gasCosts[network.name].update.totalGasUsed.toString();
+    const totalTxs = gasCosts[network.name].update.totalTxCount;
+    const beforeBalances = gasCosts[network.name].update.balancesBefore.map(
+      (balance) => ethers.utils.formatEther(balance.toString()),
+    );
+    const afterBalances = gasCosts[network.name].update.balancesAfter.map(
+      (balance) => ethers.utils.formatEther(balance.toString()),
+    );
+    const beforeBalancesWei = beforeBalances.map((balance) =>
+      ethers.utils.parseEther(balance),
+    );
+    const afterBalancesWei = afterBalances.map((balance) =>
+      ethers.utils.parseEther(balance),
+    );
 
+    const deltaBalances = beforeBalancesWei.map((beforeWei, index) => {
+      const deltaWei = beforeWei.sub(afterBalancesWei[index]);
+      return ethers.utils.formatEther(deltaWei);
+    });
     const finalizeCost = ethers.utils.formatEther(
       gasCosts[network.name].finalize.totalGasCost.toString(),
     );
     const finalizeGasUsed = gasCosts[network.name].finalize.gasUsed.toString();
 
-    let avgCostPerUpdate = ethers.BigNumber.from(0);
-
-    for (const dataProvider in updateIndividualProviders) {
-      avgCostPerUpdate = avgCostPerUpdate.add(
-        ethers.BigNumber.from(
-          updateIndividualProviders[dataProvider].totalGas.toString(),
-        ),
-      );
-    }
-    avgCostPerUpdate = avgCostPerUpdate.div(totalTxs);
+    const totalGasUsed = [
+      gasCosts[network.name].deploy.gasUsed,
+      gasCosts[network.name].register.totalGasUsed,
+      gasCosts[network.name].update.totalGasUsed,
+      gasCosts[network.name].finalize.gasUsed,
+    ].reduce((acc, val) => acc.add(val), ethers.BigNumber.from(0));
 
     const totalCost = ethers.utils.formatEther(
-      deploy
-        .add(
-          ethers.BigNumber.from(
-            gasCosts[network.name].register.totalGasCost.toString(),
-          ),
-        )
-        .add(
-          ethers.BigNumber.from(
-            gasCosts[network.name].update.totalGasCost.toString(),
-          ),
-        )
-        .add(
-          ethers.BigNumber.from(
-            gasCosts[network.name].finalize.totalGasCost.toString(),
-          ),
-        ),
+      [
+        gasCosts[network.name].deploy.gas,
+        gasCosts[network.name].register.totalGasCost,
+        gasCosts[network.name].update.totalGasCost,
+        gasCosts[network.name].finalize.totalGasCost,
+      ].reduce((acc, val) => acc.add(val), ethers.BigNumber.from(0)),
     );
 
-    const deployGasUsed2 = ethers.BigNumber.from(
-      gasCosts[network.name].deploy.gasUsed.toString(),
-    );
-    const registerGasUsed2 = ethers.BigNumber.from(
-      gasCosts[network.name].register.totalGasUsed.toString(),
-    );
-    const updateGasUsed2 = ethers.BigNumber.from(
-      gasCosts[network.name].update.totalGasUsed.toString(),
-    );
-    const finalizeGasUsed2 = ethers.BigNumber.from(
-      gasCosts[network.name].finalize.gasUsed.toString(),
-    );
+    const networkData = {
+      name: network.name,
+      gasPrice: gasPrice,
+      deployCost: deployCost,
+      deployGasUsed: deployGasUsed,
+      registerCost: registerCost,
+      registerGasUsed: registerGasUsed,
+      updateTotalCost: updateTotalCost,
+      updateGasUsed: updateGasUsed,
+      beforeBalances: beforeBalances,
+      afterBalances: afterBalances,
+      deltaBalances: deltaBalances,
+      totalTxs: totalTxs,
+      finalizeCost: finalizeCost,
+      finalizeGasUsed: finalizeGasUsed,
+      totalCost: totalCost,
+      totalGasUsed: totalGasUsed,
+    };
 
-    const totalGasUsed = deployGasUsed2
-      .add(registerGasUsed2)
-      .add(updateGasUsed2)
-      .add(finalizeGasUsed2);
+    displayHeader(`\n\n🌐 Network: ${network.name}`);
+    displayHeader(`\n🌐 Parameters Used:`);
+    displayDataRow("Duration (minutes)", DURATION_MINUTES);
+    displayDataRow("TX cap (updatePrice)", TX_CAP);
+    displayDataRow("Data Providers", DATA_PROVIDER_COUNT);
 
-    networkData.push([
-      network.name,
-      gasPrice,
-      deployCost,
-      deployGasUsed,
-      registerCost,
-      registerGasUsed,
-      updateTotalCost,
-      updateGasUsed,
-      ethers.utils.formatEther(avgCostPerUpdate.toString()),
-      avgCostPerUpdate.toString(),
-      finalizeCost,
-      finalizeGasUsed,
-      totalTxs,
-      totalCost,
-      totalGasUsed,
-    ]);
-  }
-
-  const centerPad = (text, length) => {
-    const totalPadding = length - text.length;
-    const leftPadding = Math.floor(totalPadding / 2);
-    const rightPadding = totalPadding - leftPadding;
-    return " ".repeat(leftPadding) + text + " ".repeat(rightPadding);
-  };
-
-  const drawRow = (row, widths) => {
-    return row
-      .map((cell, index) => {
-        return centerPad(cell.toString(), widths[index]);
-      })
-      .join("|");
-  };
-
-  const drawTable = (headers, data) => {
-    const widths = headers.map((_, index) => {
-      return (
-        Math.max(
-          ...data.map((row) => row[index].toString().length),
-          headers[index].length,
-        ) + 1
-      );
-    });
-
-    console.log(
-      "-".repeat(
-        widths.reduce((acc, width) => acc + width, 0) + (widths.length - 1),
-      ),
-    );
-    console.log(drawRow(headers, widths));
-    console.log(
-      "-".repeat(
-        widths.reduce((acc, width) => acc + width, 0) + (widths.length - 1),
-      ),
-    );
-
-    for (const row of data) {
-      console.log(drawRow(row, widths));
-    }
-
-    console.log(
-      "=".repeat(
-        widths.reduce((acc, width) => acc + width, 0) + (widths.length - 1),
-      ),
-    );
     console.log("\n");
-  };
 
-  console.log("\n\n\n========= Gas Costs Matrix =========");
-  console.log("\nPARAMETERS USED");
-  console.log("\n- DURATION_MINUTES:", DURATION_MINUTES);
-  console.log("\n- # OF DATA PROVIDERS:", 3);
-  console.log("\n");
+    displayDataRow("Gas Price (Gwei)", networkData.gasPrice);
+    displayDataRow("Deploy Cost ($)", networkData.deployCost);
+    displayDataRow("Deploy Gas Used", networkData.deployGasUsed);
+    displayDataRow("Register DataProvider Cost ($)", networkData.registerCost);
+    displayDataRow("Register Gas Used", networkData.registerGasUsed);
+    displayDataRow("Update Price Cost ($)", networkData.updateTotalCost);
+    displayDataRow("Update Gas Used", networkData.updateGasUsed);
+    displayMultiDataRow(
+      "Balance Before Update Price",
+      networkData.beforeBalances,
+    );
+    displayMultiDataRow(
+      "Balance After Update Price",
+      networkData.afterBalances,
+    );
+    displayMultiDataRow("Delta Balance", networkData.deltaBalances);
+    displayDataRow("# of updatePrice txs", networkData.totalTxs);
+    displayDataRow("Finalize Price Cost ($)", networkData.finalizeCost);
+    displayDataRow("Finalize Gas Used", networkData.finalizeGasUsed);
+    displayDataRow("Total Cost ($)", networkData.totalCost);
+    displayDataRow("Total Gas Used", networkData.totalGasUsed.toString());
 
-  // Deployment Data
-  console.log("Deployment Data:");
-  drawTable(
-    ["networks", "gasPrice Gwei", "deploy $", "deploy gasUsed"],
-    networkData.map((row) => [row[0], row[1], row[2], row[3]]),
-  );
-
-  // Registration Data
-  console.log("Registration Data:");
-  drawTable(
-    ["networks", "registerDataProvider $", "register gasUsed"],
-    networkData.map((row) => [row[0], row[4], row[5]]),
-  );
-
-  // Update Price Data
-  console.log("Update Price Data:");
-  drawTable(
-    [
-      "networks",
-      "updatePrice $",
-      "update gasUsed",
-      "avg. $ per updatePrice",
-      "# of updatePrice txs",
-    ],
-    networkData.map((row) => [row[0], row[6], row[7], row[8], row[12]]),
-  );
-
-  // Finalize Price Data
-  console.log("Finalize Price Data:");
-  drawTable(
-    ["networks", "finalizePrice $", "finalize gasUsed"],
-    networkData.map((row) => [row[0], row[10], row[11]]),
-  );
-
-  // Summary Data
-  console.log("Summary Data:");
-  drawTable(
-    ["networks", "total cost", "total gasUsed"],
-    networkData.map((row) => [row[0], row[13], row[14]]),
-  );
+    console.log("\n");
+  });
 }
