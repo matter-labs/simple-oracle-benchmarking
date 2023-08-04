@@ -27,14 +27,14 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncLocalnet",
+  defaultNetwork: "polygonzkEVMTestnet",
   networks: {
     hardhat: {
       zksync: false,
     },
     zkSyncLocalnet: {
       url: "http://localhost:3050",
-      chainId: 270, 
+      chainId: 270,
       ethNetwork: "goerli",
       zksync: true,
     },
@@ -85,6 +85,18 @@ const config: HardhatUserConfig = {
     ArbitrumMainnet: {
       url: "https://endpoints.omniatech.io/v1/arbitrum/one/public",
       chainId: 42161, 
+    },
+    LineaTestnet: {
+      url: "https://rpc.goerli.linea.build/",
+      chainId: 59140, 
+    },
+    LineaMainnet: {
+      url: "https://linea-mainnet.infura.io/v3",
+      chainId: 59144, 
+    },
+    ScrollTestnet: {
+      url: "https://alpha-rpc.scroll.io/l2",
+      chainId: 534353, 
     },
   },
   solidity: {

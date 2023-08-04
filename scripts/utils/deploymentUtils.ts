@@ -48,10 +48,12 @@ export async function deployToTestnet(
   networkConfig: any,
   deployer: ethers.Wallet,
 ): Promise<DeployedContract> {
+  
   const { bytecode, abi } = ContractArtifact;
+  
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
   const contractInstance = await contractFactory.deploy();
-
+  console.log("contract", contractInstance);
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
     deployer,
@@ -74,8 +76,9 @@ export async function recordDeployGasCosts(
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
     throw new Error("Contract bytecode or ABI is missing.");
   }
-
+  console.log("Deploying contract...");
   const receipt = await contractInstance.deployed();
+  console.log("Contract deployed!");
   const gasUsed = await receipt.deployTransaction
     .wait()
     .then((tx) => tx.gasUsed);

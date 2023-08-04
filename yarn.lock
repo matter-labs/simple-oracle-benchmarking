@@ -1598,6 +1598,11 @@ color-name@~1.1.4:
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
 
+colors.ts@^1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/colors.ts/-/colors.ts-1.0.20.tgz#bb00bacbe10ecd5dad8867816a1f03fd7d78f05e"
+  integrity sha512-MnVQgqGe3S7KLlK0v7rsLQciRgB4NzfRPZ4OZuu8SWNgyJuV651pMqCq7LvJ7eQO586RVspwYvK2ere7xX/m1A==
+
 colors@1.4.0, colors@^1.1.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
