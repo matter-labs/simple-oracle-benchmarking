@@ -21,7 +21,14 @@ export async function deployToZkSync(
   deployerWallet: ethers.Wallet,
 ): Promise<DeployedContract> {
   const wallet = new Wallet(networkConfig.richWalletPK);
+
   const deployer = new Deployer(hre, wallet);
+
+  const startingBalance = await deployer.zkWallet.getBalance();
+  console.log(
+    "Starting balance",
+    ethers.utils.formatEther(startingBalance.toString()),
+  );
 
   const artifact = await deployer.loadArtifact("SimpleOracle");
   const deploymentFee = await deployer.estimateDeployFee(artifact, []);
@@ -33,7 +40,7 @@ export async function deployToZkSync(
   const contract = await deployer.deploy(artifact, []);
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
-    deployer.ethWallet,
+    deployer.zkWallet,
     contract,
   );
 }
@@ -48,12 +55,15 @@ export async function deployToTestnet(
   networkConfig: any,
   deployer: ethers.Wallet,
 ): Promise<DeployedContract> {
-  
   const { bytecode, abi } = ContractArtifact;
-  
+  const startingBalance = await deployer.getBalance();
+  console.log(
+    "Starting balance",
+    ethers.utils.formatEther(startingBalance.toString()),
+  );
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
   const contractInstance = await contractFactory.deploy();
-  console.log("contract", contractInstance);
+
   return await recordDeployGasCosts(
     networkConfig.rpcEndpoint,
     deployer,
@@ -76,9 +86,12 @@ export async function recordDeployGasCosts(
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
     throw new Error("Contract bytecode or ABI is missing.");
   }
-  console.log("Deploying contract...");
   const receipt = await contractInstance.deployed();
-  console.log("Contract deployed!");
+  const afterBalance = await deployerWallet.getBalance();
+  console.log(
+    "After balance",
+    ethers.utils.formatEther(afterBalance.toString()),
+  );
   const gasUsed = await receipt.deployTransaction
     .wait()
     .then((tx) => tx.gasUsed);

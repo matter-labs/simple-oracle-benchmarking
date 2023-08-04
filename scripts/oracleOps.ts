@@ -61,7 +61,7 @@ export async function registerDataProviders(
 }
 /**
  * Continuously updates prices on a given contract using multiple data providers until a specified duration is reached or a maximum of 20 transactions are executed. The function also calculates the total gas costs.
- * 
+ *
  * * Note: The function runs a loop that continually updates prices on the given contract until the DURATION_MINUTES is reached or 20 transactions are executed.
  * * Note: The prices are randomly generated.
  * * Note: The function also tracks the balance of each data provider before and after the updates.
@@ -71,22 +71,22 @@ export async function registerDataProviders(
  * @param {ethers.Wallet[]} wallets - An array of Wallet instances to be used as data providers.
  *
  * @returns {Promise<{
-*   individualCosts: Record<string, any>;
-*   totalGasCost: ethers.BigNumber;
-*   gasPrice: ethers.BigNumber;
-*   totalTxCount: number;
-*   totalGasUsed: ethers.BigNumber;
-*   balancesBefore: ethers.BigNumber[];
-*   balancesAfter: ethers.BigNumber[];
-* }>} An object containing:
-*   - individualCosts: An object mapping each data provider to its associated gas costs details.
-*   - totalGasCost: The grand total gas cost for all data provider updates.
-*   - gasPrice: The gas price used for the transactions.
-*   - totalTxCount: The total number of transactions executed.
-*   - totalGasUsed: The total gas used across all transactions.
-*   - balancesBefore: An array of balances of each data provider before the updates.
-*   - balancesAfter: An array of balances of each data provider after the updates.
-*/
+ *   individualCosts: Record<string, any>;
+ *   totalGasCost: ethers.BigNumber;
+ *   gasPrice: ethers.BigNumber;
+ *   totalTxCount: number;
+ *   totalGasUsed: ethers.BigNumber;
+ *   balancesBefore: ethers.BigNumber[];
+ *   balancesAfter: ethers.BigNumber[];
+ * }>} An object containing:
+ *   - individualCosts: An object mapping each data provider to its associated gas costs details.
+ *   - totalGasCost: The grand total gas cost for all data provider updates.
+ *   - gasPrice: The gas price used for the transactions.
+ *   - totalTxCount: The total number of transactions executed.
+ *   - totalGasUsed: The total gas used across all transactions.
+ *   - balancesBefore: An array of balances of each data provider before the updates.
+ *   - balancesAfter: An array of balances of each data provider after the updates.
+ */
 export async function updatePrices(
   contractAddress: string,
   networkName: string,

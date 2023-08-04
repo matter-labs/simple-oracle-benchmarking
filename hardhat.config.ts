@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "polygonzkEVMTestnet",
+  defaultNetwork: "zkSyncTestnet",
   networks: {
     hardhat: {
       zksync: false,
