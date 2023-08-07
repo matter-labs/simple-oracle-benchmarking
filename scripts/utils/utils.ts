@@ -58,39 +58,36 @@ export function displayGasCostsMatrix(gasCosts, networks) {
       gasCosts[network.name].deploy.gas.toString(),
     );
     const deployGasUsed = gasCosts[network.name].deploy.gasUsed.toString();
+    console.log("delata", gasCosts[network.name].deploy.deltaBalance);
+    console.log("delta FORMAT:: ",  ethers.utils.formatEther(
+      gasCosts[network.name].deploy.deltaBalance.toString(),
+    ));
+    const deployDeltaBalanceCost = ethers.utils.formatEther(
+      gasCosts[network.name].deploy.deltaBalance.toString(),
+    );
 
     const registerCost = ethers.utils.formatEther(
       gasCosts[network.name].register.totalGasCost.toString(),
     );
     const registerGasUsed =
       gasCosts[network.name].register.totalGasUsed.toString();
+    const registerDeltaBalanceCost = ethers.utils.formatEther(
+      gasCosts[network.name].register.deltaBalance.toString(),
+    );
 
     const updateTotalCost = ethers.utils.formatEther(
       gasCosts[network.name].update.totalGasCost.toString(),
     );
     const updateGasUsed = gasCosts[network.name].update.totalGasUsed.toString();
+    const updateDeltaBalanceCost = ethers.utils.formatEther(gasCosts[network.name].update.deltaBalance.toString(),
+    );
     const totalTxs = gasCosts[network.name].update.totalTxCount;
-    const beforeBalances = gasCosts[network.name].update.balancesBefore.map(
-      (balance) => ethers.utils.formatEther(balance.toString()),
-    );
-    const afterBalances = gasCosts[network.name].update.balancesAfter.map(
-      (balance) => ethers.utils.formatEther(balance.toString()),
-    );
-    const beforeBalancesWei = beforeBalances.map((balance) =>
-      ethers.utils.parseEther(balance),
-    );
-    const afterBalancesWei = afterBalances.map((balance) =>
-      ethers.utils.parseEther(balance),
-    );
 
-    const deltaBalances = beforeBalancesWei.map((beforeWei, index) => {
-      const deltaWei = beforeWei.sub(afterBalancesWei[index]);
-      return ethers.utils.formatEther(deltaWei);
-    });
     const finalizeCost = ethers.utils.formatEther(
       gasCosts[network.name].finalize.totalGasCost.toString(),
     );
     const finalizeGasUsed = gasCosts[network.name].finalize.gasUsed.toString();
+    const finalizeDeltaBalanceCost = ethers.utils.formatEther(gasCosts[network.name].finalize.deltaBalance.toString());
 
     const totalGasUsed = [
       gasCosts[network.name].deploy.gasUsed,
@@ -113,16 +110,17 @@ export function displayGasCostsMatrix(gasCosts, networks) {
       gasPrice: gasPrice,
       deployCost: deployCost,
       deployGasUsed: deployGasUsed,
+      deployDeltaBalance: deployDeltaBalanceCost,
       registerCost: registerCost,
       registerGasUsed: registerGasUsed,
+      registerDeltaBalance: registerDeltaBalanceCost,
       updateTotalCost: updateTotalCost,
       updateGasUsed: updateGasUsed,
-      beforeBalances: beforeBalances,
-      afterBalances: afterBalances,
-      deltaBalances: deltaBalances,
+      updateDeltaBalance: updateDeltaBalanceCost,
       totalTxs: totalTxs,
       finalizeCost: finalizeCost,
       finalizeGasUsed: finalizeGasUsed,
+      finalizeDeltaBalance: finalizeDeltaBalanceCost,
       totalCost: totalCost,
       totalGasUsed: totalGasUsed,
     };
@@ -138,22 +136,17 @@ export function displayGasCostsMatrix(gasCosts, networks) {
     displayDataRow("Gas Price (Gwei)", networkData.gasPrice);
     displayDataRow("Deploy Cost ($)", networkData.deployCost);
     displayDataRow("Deploy Gas Used", networkData.deployGasUsed);
+    displayDataRow("Deploy Delta Balance Cost", networkData.deployDeltaBalance);
     displayDataRow("Register DataProvider Cost ($)", networkData.registerCost);
     displayDataRow("Register Gas Used", networkData.registerGasUsed);
+    displayDataRow("Register Delta Balance Cost (1 dataProvider)", networkData.registerDeltaBalance);
     displayDataRow("Update Price Cost ($)", networkData.updateTotalCost);
     displayDataRow("Update Gas Used", networkData.updateGasUsed);
-    displayMultiDataRow(
-      "Balance Before Update Price",
-      networkData.beforeBalances,
-    );
-    displayMultiDataRow(
-      "Balance After Update Price",
-      networkData.afterBalances,
-    );
-    displayMultiDataRow("Delta Balance", networkData.deltaBalances);
+    displayDataRow("Update Delta Balance Cost (1 dataProvider)", networkData.updateDeltaBalance);
     displayDataRow("# of updatePrice txs", networkData.totalTxs);
     displayDataRow("Finalize Price Cost ($)", networkData.finalizeCost);
     displayDataRow("Finalize Gas Used", networkData.finalizeGasUsed);
+    displayDataRow("Finalize Delta Balance Cost", networkData.finalizeDeltaBalance);
     displayDataRow("Total Cost ($)", networkData.totalCost);
     displayDataRow("Total Gas Used", networkData.totalGasUsed.toString());
 

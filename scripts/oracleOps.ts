@@ -21,7 +21,7 @@ export async function registerDataProviders(
   contractAddress: string,
   networkName: string,
   wallets: ethers.Wallet[],
-): Promise<{ totalGasCost: number; totalGasUsed: ethers.BigNumber }> {
+): Promise<{ totalGasCost: number; totalGasUsed: ethers.BigNumber, deltaBalance: ethers.BigNumber }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   wallets = wallets.map((wallet) => wallet.connect(provider));
   const contract = new ethers.Contract(
@@ -32,6 +32,9 @@ export async function registerDataProviders(
 
   let totalGas = ethers.BigNumber.from(0);
   let totalGasUsed = ethers.BigNumber.from(0);
+  let providerWallet1 = wallets[0];
+  let startingBalance = await providerWallet1.getBalance();
+  let deltaBalance = ethers.BigNumber.from(0);
 
   for (let wallet of wallets) {
     let tx = await contract.connect(wallet).registerDataProvider();
@@ -43,6 +46,7 @@ export async function registerDataProviders(
     let gasUsed = receipt.gasUsed;
     let gasPrice =
       receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
+    let afterBalance = await providerWallet1.getBalance();  
 
     if (!gasUsed || !gasPrice) {
       throw new Error(
@@ -52,11 +56,14 @@ export async function registerDataProviders(
 
     totalGas = totalGas.add(gasUsed.mul(gasPrice));
     totalGasUsed = totalGasUsed.add(receipt.gasUsed);
+    deltaBalance = startingBalance.sub(afterBalance);
+    console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
   }
 
   return {
     totalGasCost: totalGas.toNumber(),
     totalGasUsed: totalGasUsed,
+    deltaBalance: deltaBalance,
   };
 }
 /**
@@ -97,8 +104,7 @@ export async function updatePrices(
   gasPrice: ethers.BigNumber;
   totalTxCount: number;
   totalGasUsed: ethers.BigNumber;
-  balancesBefore: ethers.BigNumber[];
-  balancesAfter: ethers.BigNumber[];
+  deltaBalance: ethers.BigNumber;
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   let txCount = 0;
@@ -110,15 +116,12 @@ export async function updatePrices(
   );
 
   const endTime = Date.now() + DURATION_MINUTES * 60 * 1000;
-
-  const balancesBefore = await Promise.all(
-    wallets.map(async (wallet) => await wallet.getBalance()),
-  );
-
+  let startingBalance = await wallets[0].getBalance();
   let results: Record<string, any> = {};
   let grandTotalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
   let totalGasUsed = ethers.BigNumber.from(0);
+  
   let totalTxCount = 0;
   const walletTxCap = Math.floor(TX_CAP / wallets.length);
 
@@ -162,9 +165,9 @@ export async function updatePrices(
     }),
   );
 
-  const balancesAfter = await Promise.all(
-    wallets.map(async (wallet) => await wallet.getBalance()),
-  );
+  let balancesAfter = await wallets[0].getBalance();
+  const deltaBalance = startingBalance.sub(balancesAfter);
+  console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
 
   return {
     individualCosts: results,
@@ -172,8 +175,7 @@ export async function updatePrices(
     gasPrice: gasPrice,
     totalTxCount: totalTxCount,
     totalGasUsed: totalGasUsed,
-    balancesBefore: balancesBefore,
-    balancesAfter: balancesAfter,
+    deltaBalance: deltaBalance,
   };
 }
 
@@ -196,6 +198,7 @@ export async function finalizePrices(
 ): Promise<{
   totalGasCost: ethers.BigNumber;
   gasUsed: ethers.BigNumber;
+  deltaBalance: ethers.BigNumber;
 }> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   const connectedWallet = wallet.connect(provider);
@@ -207,12 +210,15 @@ export async function finalizePrices(
 
   let totalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
+  const startingBalance = await wallet.getBalance();
 
   const tx = await contract.finalizePrice();
   const receipt = await tx.wait();
   const gasUsed = receipt.gasUsed;
   gasPrice = receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
   const cost = gasUsed.mul(gasPrice);
+  const afterBalance = await wallet.getBalance();
+  const deltaBalance = startingBalance.sub(afterBalance);
 
   totalGasCost = totalGasCost.add(cost);
 
@@ -233,5 +239,6 @@ export async function finalizePrices(
   return {
     totalGasCost,
     gasUsed: gasUsed,
+    deltaBalance: deltaBalance,
   };
 }

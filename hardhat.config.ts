@@ -9,7 +9,7 @@ import "hardhat-gas-reporter";
 const zkSyncTestnet =
   process.env.NODE_ENV == "test"
     ? {
-        url: "http://localhost:8011",
+        url: "http://localhost:3050",
         ethNetwork: "http://localhost:8545",
         zksync: true,
       }
@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "zkSyncLocalnet",
   networks: {
     hardhat: {
       zksync: false,
