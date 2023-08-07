@@ -62,6 +62,7 @@ async function main() {
     gasCosts[networkConfig.name].deploy = {
       gas: contract.gas,
       gasUsed: contract.gasUsed,
+      deltaBalance: contract.deltaBalance,
     };
 
     // Fund data providers

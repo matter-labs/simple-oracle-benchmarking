@@ -8,6 +8,7 @@ interface DeployedContract {
   address: string;
   gas: number;
   gasUsed: ethers.BigNumber;
+  deltaBalance: ethers.BigNumber;
 }
 
 /**
@@ -42,6 +43,7 @@ export async function deployToZkSync(
     networkConfig.rpcEndpoint,
     deployer.zkWallet,
     contract,
+    startingBalance
   );
 }
 
@@ -68,6 +70,7 @@ export async function deployToTestnet(
     networkConfig.rpcEndpoint,
     deployer,
     contractInstance,
+    startingBalance
   );
 }
 
@@ -82,6 +85,7 @@ export async function recordDeployGasCosts(
   networkName: string,
   deployerWallet: ethers.Wallet,
   contractInstance: ethers.Contract,
+  startingBalance: ethers.BigNumber
 ): Promise<DeployedContract> {
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
     throw new Error("Contract bytecode or ABI is missing.");
@@ -92,6 +96,7 @@ export async function recordDeployGasCosts(
     "After balance",
     ethers.utils.formatEther(afterBalance.toString()),
   );
+  const deltaBalance = startingBalance.sub(afterBalance);
   const gasUsed = await receipt.deployTransaction
     .wait()
     .then((tx) => tx.gasUsed);
@@ -104,6 +109,7 @@ export async function recordDeployGasCosts(
       "Failed to retrieve gas information from the deploy transaction.",
     );
   }
+  console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
 
   console.log(
     `SimpleOracle deployed to ${networkName} at ${contractInstance.address}`,
@@ -112,5 +118,6 @@ export async function recordDeployGasCosts(
     address: contractInstance.address,
     gas: gasUsed.mul(gasPrice).toNumber(),
     gasUsed: gasUsed,
+    deltaBalance: deltaBalance,
   };
 }
