@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // fund amount in ETH for each data provider
-const FUND_AMOUNT = ".01";
+const FUND_AMOUNT = ".001";
 export const DATA_PROVIDER_COUNT = 3;
 
 const argv = yargs(hideBin(process.argv)).option("network", {
@@ -22,6 +22,7 @@ const argv = yargs(hideBin(process.argv)).option("network", {
 }).argv;
 
 // Filter networks based on the provided argument
+// TODO: fix this to work well with hardhat run
 const filteredNetworks = networks.filter((network) => {
   switch (argv.network) {
     case "testnet":
@@ -56,7 +57,7 @@ async function main() {
     const connectedWallets = dataProviders.map((wallet) =>
       wallet.connect(provider),
     );
-
+    // TODO: save gas used sooner
     // Deploy the contract
     const contract = await networkConfig.deployFunc(networkConfig, deployer);
     gasCosts[networkConfig.name].deploy = {
