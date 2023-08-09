@@ -44,7 +44,7 @@ export const networks = [
   },
   {
     name: "PolygonzkEVMMainnet",
-    rpcEndpoint: "https://1rpc.io/polygon/zkevm",
+    rpcEndpoint: "https://polygon-zkevm-mainnet.public.blastapi.io",
     richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
     deployFunc: deployToTestnet,
   },
@@ -80,8 +80,8 @@ export const networks = [
   },
   {
     name: "ArbitrumMainnet",
-    rpcEndpoint: "https://endpoints.omniatech.io/v1/arbitrum/one/public",
-    richWalletPK: process.env.WALLET_PRIVATE_KEY || "",
+    rpcEndpoint: "https://arbitrum-one.public.blastapi.io",
+    richWalletPK: process.env.WALLET_ARB_PRIVATE || "",
     deployFunc: deployToTestnet,
   },
   {

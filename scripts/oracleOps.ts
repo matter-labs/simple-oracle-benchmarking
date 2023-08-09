@@ -1,10 +1,9 @@
 import * as ethers from "ethers";
 import * as ContractArtifact from "../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 
-// DURATION_MINUTES is the number of minutes that the data providers will be updating prices AND
-// the number of minutes that the owner will be finalizing the price.
+// DURATION_MINUTES is the number of minutes that the data providers will be updating prices
 export const DURATION_MINUTES = 1;
-export const TX_CAP = 25;
+export const TX_CAP = 24;
 
 /**
  * Registers multiple wallets as data providers on a given contract and calculates the total gas costs.
@@ -21,7 +20,11 @@ export async function registerDataProviders(
   contractAddress: string,
   networkName: string,
   wallets: ethers.Wallet[],
-): Promise<{ totalGasCost: number; totalGasUsed: ethers.BigNumber, deltaBalance: ethers.BigNumber }> {
+): Promise<{
+  totalGasCost: number;
+  totalGasUsed: ethers.BigNumber;
+  deltaBalance: ethers.BigNumber;
+}> {
   const provider = new ethers.providers.JsonRpcProvider(networkName);
   wallets = wallets.map((wallet) => wallet.connect(provider));
   const contract = new ethers.Contract(
@@ -46,7 +49,7 @@ export async function registerDataProviders(
     let gasUsed = receipt.gasUsed;
     let gasPrice =
       receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
-    let afterBalance = await providerWallet1.getBalance();  
+    let afterBalance = await providerWallet1.getBalance();
 
     if (!gasUsed || !gasPrice) {
       throw new Error(
@@ -57,7 +60,10 @@ export async function registerDataProviders(
     totalGas = totalGas.add(gasUsed.mul(gasPrice));
     totalGasUsed = totalGasUsed.add(receipt.gasUsed);
     deltaBalance = startingBalance.sub(afterBalance);
-    console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
+    console.log(
+      "Delta balance",
+      ethers.utils.formatEther(deltaBalance.toString()),
+    );
   }
 
   return {
@@ -66,6 +72,7 @@ export async function registerDataProviders(
     deltaBalance: deltaBalance,
   };
 }
+
 /**
  * Continuously updates prices on a given contract using multiple data providers until a specified duration is reached or a maximum of 20 transactions are executed. The function also calculates the total gas costs.
  *
@@ -121,7 +128,7 @@ export async function updatePrices(
   let grandTotalGasCost = ethers.BigNumber.from(0);
   let gasPrice = ethers.BigNumber.from(0);
   let totalGasUsed = ethers.BigNumber.from(0);
-  
+
   let totalTxCount = 0;
   const walletTxCap = Math.floor(TX_CAP / wallets.length);
 
@@ -167,7 +174,10 @@ export async function updatePrices(
 
   let balancesAfter = await wallets[0].getBalance();
   const deltaBalance = startingBalance.sub(balancesAfter);
-  console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
+  console.log(
+    "Delta balance",
+    ethers.utils.formatEther(deltaBalance.toString()),
+  );
 
   return {
     individualCosts: results,

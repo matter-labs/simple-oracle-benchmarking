@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncLocalnet",
+  defaultNetwork: "PolygonzkEVMMainnet",
   networks: {
     hardhat: {
       zksync: false,
@@ -71,7 +71,7 @@ const config: HardhatUserConfig = {
       chainId: 1001,
     },
     PolygonzkEVMMainnet: {
-      url: "https://1rpc.io/polygon/zkevm",
+      url: "https://polygon-zkevm-mainnet.public.blastapi.io	",
       chainId: 1101,
     },
     arbitrumLocalDev : {
@@ -83,7 +83,7 @@ const config: HardhatUserConfig = {
       chainId: 421613, 
     },
     ArbitrumMainnet: {
-      url: "https://endpoints.omniatech.io/v1/arbitrum/one/public",
+      url: "https://arbitrum-one.public.blastapi.io",
       chainId: 42161, 
     },
     LineaTestnet: {

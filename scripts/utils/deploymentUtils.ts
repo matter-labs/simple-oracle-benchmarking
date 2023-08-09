@@ -26,11 +26,6 @@ export async function deployToZkSync(
   const deployer = new Deployer(hre, wallet);
 
   const startingBalance = await deployer.zkWallet.getBalance();
-  console.log(
-    "Starting balance",
-    ethers.utils.formatEther(startingBalance.toString()),
-  );
-
   const artifact = await deployer.loadArtifact("SimpleOracle");
   const deploymentFee = await deployer.estimateDeployFee(artifact, []);
   console.log(
@@ -43,7 +38,7 @@ export async function deployToZkSync(
     networkConfig.rpcEndpoint,
     deployer.zkWallet,
     contract,
-    startingBalance
+    startingBalance,
   );
 }
 
@@ -59,10 +54,6 @@ export async function deployToTestnet(
 ): Promise<DeployedContract> {
   const { bytecode, abi } = ContractArtifact;
   const startingBalance = await deployer.getBalance();
-  console.log(
-    "Starting balance",
-    ethers.utils.formatEther(startingBalance.toString()),
-  );
   const contractFactory = new ethers.ContractFactory(abi, bytecode, deployer);
   const contractInstance = await contractFactory.deploy();
 
@@ -70,7 +61,7 @@ export async function deployToTestnet(
     networkConfig.rpcEndpoint,
     deployer,
     contractInstance,
-    startingBalance
+    startingBalance,
   );
 }
 
@@ -85,17 +76,13 @@ export async function recordDeployGasCosts(
   networkName: string,
   deployerWallet: ethers.Wallet,
   contractInstance: ethers.Contract,
-  startingBalance: ethers.BigNumber
+  startingBalance: ethers.BigNumber,
 ): Promise<DeployedContract> {
   if (!ContractArtifact.bytecode || !ContractArtifact.abi) {
     throw new Error("Contract bytecode or ABI is missing.");
   }
   const receipt = await contractInstance.deployed();
   const afterBalance = await deployerWallet.getBalance();
-  console.log(
-    "After balance",
-    ethers.utils.formatEther(afterBalance.toString()),
-  );
   const deltaBalance = startingBalance.sub(afterBalance);
   const gasUsed = await receipt.deployTransaction
     .wait()
@@ -109,7 +96,6 @@ export async function recordDeployGasCosts(
       "Failed to retrieve gas information from the deploy transaction.",
     );
   }
-  console.log("Delta balance", ethers.utils.formatEther(deltaBalance.toString()));
 
   console.log(
     `SimpleOracle deployed to ${networkName} at ${contractInstance.address}`,
