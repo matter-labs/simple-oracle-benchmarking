@@ -59,7 +59,8 @@ WALLET_PRIVATE_KEY=your_private_key_here
 ### 5. Running the Benchmark
 
 ```bash
-yarn run:benchmark --network=<NETWORK | testnet | mainnet >
+# yarn run:benchmark --network=zkSyncLocalnet
+yarn run:benchmark --network=<NETWORK>
 ```
 
 **Note:** Specify an individual network (refer to /scripts/networks) or use testnet for all testnets and mainnet for all mainnets.

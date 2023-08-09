@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // fund amount in ETH for each data provider
-const FUND_AMOUNT = ".001";
+const FUND_AMOUNT = ".004";
 export const DATA_PROVIDER_COUNT = 3;
 
 const argv = yargs(hideBin(process.argv)).option("network", {
