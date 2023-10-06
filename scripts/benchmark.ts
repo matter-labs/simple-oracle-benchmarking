@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { displayGasCostsMatrix } from "./utils/utils";
-import { fundAccount } from "./utils/fundingUtils";
+import { displayGasCostsMatrix } from "../utils/utils";
+import { fundAccount } from "../utils/fundingUtils";
 import {
   finalizePrices,
   registerDataProviders,

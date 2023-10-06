@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as ContractArtifact from "../../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
+import * as ContractArtifact from "../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 import * as hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { Wallet } from "zksync-web3";

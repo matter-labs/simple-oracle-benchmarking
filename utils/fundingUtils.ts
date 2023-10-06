@@ -12,11 +12,21 @@ export async function fundAccount(
   address: string,
   amount: string,
 ) {
-  await (
-    await wallet.sendTransaction({
-      to: address,
-      value: ethers.utils.parseEther(amount),
-    })
-  ).wait();
-  console.log(`Funded ${address} with ${amount} ETH`);
+  const txResponse = await wallet.sendTransaction({
+    to: address,
+    value: ethers.utils.parseEther(amount),
+  });
+  
+  await txResponse.wait();
+  console.log(`💵 Funded ${address} with ${amount} ETH. 📍 Tx Hash: ${txResponse.hash}`);
 }
+
+export const WalletManager = {
+  connectedWallets: [] as ethers.Wallet[],
+  updateConnectedWallets(wallets: ethers.Wallet[]) {
+    this.connectedWallets = wallets;
+  },
+  getConnectedWallets() {
+    return this.connectedWallets;
+  },
+};

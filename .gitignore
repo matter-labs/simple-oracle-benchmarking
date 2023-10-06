@@ -140,3 +140,5 @@ cache/
 /scripts/local-setups/zkevm-node
 /scripts/local-setups/local-setup
 .env
+.env.prod
+wallets.json

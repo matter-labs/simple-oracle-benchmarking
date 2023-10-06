@@ -1,4 +1,4 @@
-import { deployToZkSync, deployToTestnet } from "./utils/deploymentUtils";
+import { deployToZkSync, deployToTestnet } from "../utils/deploymentUtils";
 import dotenv from "dotenv";
 dotenv.config();
 

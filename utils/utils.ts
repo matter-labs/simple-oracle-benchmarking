@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
-import { DURATION_MINUTES, TX_CAP } from "../oracleOps";
-import { DATA_PROVIDER_COUNT } from "../benchmark";
+import { DURATION_MINUTES, TX_CAP } from "../scripts/oracleOps";
+import { DATA_PROVIDER_COUNT } from "../scripts/benchmark";
 import * as colors from "colors.ts";
 
 /**

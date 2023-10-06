@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
-import { deployToZkSync } from "./utils/deploymentUtils"; // Update this import path
-import { fundAccount } from "./utils/fundingUtils";
+import { deployToZkSync } from "../utils/deploymentUtils"; // Update this import path
+import { fundAccount } from "../utils/fundingUtils";
 import * as ContractArtifact from "../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json";
 import dotenv from "dotenv";
 dotenv.config();
