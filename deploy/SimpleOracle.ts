@@ -7,7 +7,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 async function deployOnZkSync(
   deployer: Deployer,
-  hre: HardhatRuntimeEnvironment,
 ): Promise<string> {
   const artifact = await deployer.loadArtifact("SimpleOracle");
   const simpleOracleContract = await deployer.deploy(artifact, []);
@@ -20,7 +19,6 @@ async function deployOnZkSync(
 async function deployOnOtherNetworks(
   deployments: any,
   getNamedAccounts: any,
-  hre: HardhatRuntimeEnvironment,
 ): Promise<string>  {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
@@ -33,34 +31,30 @@ async function deployOnOtherNetworks(
   return deployedContract.address;
 }
 
-module.exports = async function (hre: HardhatRuntimeEnvironment,  deployments: any, getNamedAccounts: any, taskArgs: any) {
-  console.log("Task arguments:", taskArgs); 
-
+module.exports = async function (hre: HardhatRuntimeEnvironment,  deployments: any, getNamedAccounts: any) {
   const networkName = hre.network.name;
   const accounts = hre.network.config.accounts || [];
   const deployerAccount = accounts[0];
   console.log(`🌐 Deploying to network: ${networkName} at ${hre.network.config.url}`);
 
   const networkConfig = hre.network.config;
-  let contractAddress;
-
+  
   if (networkConfig && networkConfig.zksync) {
     const wallet = new Wallet(deployerAccount);
     const deployer = new Deployer(hre, wallet);
     console.log(`👤 Deployer address: ${deployer.zkWallet.address}`);
-    const deployedContract = await deployOnZkSync(deployer, hre);
-    contractAddress = deployedContract.address;
+    await deployOnZkSync(deployer);
+    
   } else {
     console.log(`👤 Deployer address: ${await getNamedAccounts().deployer}`);
-    const deployedContract = await deployOnOtherNetworks(deployments, getNamedAccounts, hre);
-    contractAddress = deployedContract.address;
+    await deployOnOtherNetworks(deployments, getNamedAccounts);
   }
-    await hre.run("register-data-providers", {
-      contract: contractAddress,
-      dataProviderCount: dataProviderCount || 3,
-      fundAmount: fundAmount || ".004",
-      duration: duration || 1,
-  });
+  //   await hre.run("register-data-providers", {
+  //     contract: contractAddress,
+  //     dataProviderCount: dataProviderCount || 3,
+  //     fundAmount: fundAmount || ".004",
+  //     duration: duration || 1,
+  // });
 }
 
 module.exports.tags = ["SimpleOracle"];
