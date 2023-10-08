@@ -7,13 +7,15 @@ const fetchContractABI = () => {
   return ContractArtifact.abi;
 };
 
-const updatePriceForWallet = async (wallet: ethers.Wallet, contractInstance: ethers.Contract, gasTracker: GasTracker, endTime: number, totalUpdates: { count: number }) => {
+const updatePriceForDuration = async (wallet: ethers.Wallet, contractInstance: ethers.Contract, gasTracker: GasTracker, endTime: number, totalUpdates: { count: number }) => {
   const withSigner = contractInstance.connect(wallet);
   const startBalance = await wallet.provider.getBalance(wallet.address);
 
-  console.log(`🔄 Price updates beginning for wallet ${wallet.address}`);
+  console.log(`🔄 Price updates beginning for data provider: ${wallet.address}`);
   console.log('');
   
+  // Call updatePrice until endTime
+  // Represents frequent price updates from data providers
   while (Date.now() < endTime) {
     const randomPrice = Math.floor(Math.random() * 1000);
     const tx = await withSigner.updatePrice(randomPrice);
@@ -54,7 +56,7 @@ module.exports = async function(taskArgs: any, hre: any) {
   console.log(`\n🚀 Price updates starting for ${wallets.length} data providers for ${duration} minutes\n`);
 
   await Promise.all(wallets.map((wallet) => {
-    return updatePriceForWallet(wallet, new ethers.Contract(contract, fetchContractABI(), wallet), gasTracker, endTime, totalUpdates);
+    return updatePriceForDuration(wallet, new ethers.Contract(contract, fetchContractABI(), wallet), gasTracker, endTime, totalUpdates);
   }));
 
   console.log(`\n✅ Price Update Summary:`);
@@ -63,4 +65,9 @@ module.exports = async function(taskArgs: any, hre: any) {
   console.log(`- Total Gas Used: ${gasTracker.getTotalGasUsedFormatted('updatingPrices')} (in wei)`);
   console.log(`- Total Gas Cost: ${gasTracker.getTotalGasCostFormatted('updatingPrices')} ETH`);
   console.log(`- Total Balance Difference: ${gasTracker.getTotalBalanceDifferenceFormatted('updatingPrices')} ETH`);
+
+  console.log("\n------------------------------------------------------------");
+  // Display gas tracker data as table
+  const tableStr = gasTracker.displayDataAsTable(hre.network.name);
+  console.log('\n', tableStr);
 };

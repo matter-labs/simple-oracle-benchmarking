@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { fundAccount, WalletManager } from "../utils/utils";
-import { initGasTracker } from "../utils/gasTracker";
+import { getGasTracker } from "../utils/gasTracker";
 
 // To run:
 // npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --target-network <networkName> --data-provider-count 4 --fund-amount ".005"
@@ -12,8 +12,8 @@ const fetchContractABI = () => {
 
 module.exports = async function(taskArgs, hre) {
   const { contract, dataProviderCount = 3, fundAmount = ".004", duration = 1 } = taskArgs;
-  // Initialize GasTracker
-  const gasTracker = initGasTracker();
+  // Initialize the GasTracker instance
+  const gasTracker = getGasTracker();
   
   const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
   const accounts = hre.network.config.accounts || [];

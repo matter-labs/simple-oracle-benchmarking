@@ -21,6 +21,11 @@ export async function fundAccount(
   console.log(`💵 Funded ${address} with ${amount} ETH. 📍 Tx Hash: ${txResponse.hash}`);
 }
 
+// Utility function for formatting units
+export function formatUnits(value: ethers.BigNumber, unit: string): string {
+  return ethers.utils.formatUnits(value, unit);
+}
+
 export const WalletManager = {
   connectedWallets: [] as ethers.Wallet[],
   updateConnectedWallets(wallets: ethers.Wallet[]) {
@@ -30,3 +35,20 @@ export const WalletManager = {
     return this.connectedWallets;
   },
 };
+
+export function toCSV(data: any[]): string {
+  const header = Object.keys(data[0]).join(",");
+  const rows = data
+    .map((row) => {
+      return Object.values(row)
+        .map((field) => {
+          if (field && typeof field === "object" && "hex" in field) {
+            return field.hex;
+          }
+          return field;
+        })
+        .join(",");
+    })
+    .join("\n");
+  return `${header}\n${rows}`;
+}

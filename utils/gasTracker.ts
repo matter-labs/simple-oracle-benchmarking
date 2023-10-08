@@ -1,110 +1,159 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
+import { toCSV, formatUnits } from "./utils";
 
-let singletonGasTracker: GasTracker | null = null;
+// Type for operation keys
+type OperationKey = "deployment" | "registering" | "updatingPrices";
 
-interface DataProviderInfo {
-  address: string;
-  gasCost: ethers.BigNumber;
-  gasUsed: ethers.BigNumber;
-  balanceDifference: ethers.BigNumber;
+// Operation Info class (operation = deployment, registering, updatingPrices)
+class OperationInfo {
+  totalGasCost = ethers.BigNumber.from(0);
+  totalGasUsed = ethers.BigNumber.from(0);
+  totalBalanceDifference = ethers.BigNumber.from(0);
+  perDataProvider: Array<DataProviderInfo> = [];
 }
 
-interface OperationInfo {
-  totalGasCost: ethers.BigNumber;
-  totalGasUsed: ethers.BigNumber;
-  totalBalanceDifference: ethers.BigNumber;
-  perDataProvider: Array<DataProviderInfo>;
+// DataProvider Info class
+class DataProviderInfo {
+  constructor(
+    public address: string,
+    public gasCost: ethers.BigNumber,
+    public gasUsed: ethers.BigNumber,
+    public balanceDifference: ethers.BigNumber,
+  ) {}
 }
 
-interface GasTracker {
-  deployment: OperationInfo;
-  registering: OperationInfo;
-  updatingPrices: OperationInfo;
-  getTotalGasUsedFormatted(operation: keyof GasTracker): string;
-  getProviderInfo(operation: keyof GasTracker, address: string): DataProviderInfo | null;
-  getAverageGasCost(operation: keyof GasTracker): string;
-  getMedianGasCost(operation: keyof GasTracker): string;
-  getTotalGasCostFormatted(operation: keyof GasTracker): string;
-  getTotalBalanceDifferenceFormatted(operation: keyof GasTracker): string;
-  exportData(): string;
-  resetData(operation?: keyof GasTracker): void;
-  getProviderCount(operation: keyof GasTracker): number;
-  getTransactionCount(operation: keyof GasTracker): number;
-}
+// GasTracker class
+class GasTracker {
+  private static instance: GasTracker;
 
-function initOperationInfo(): OperationInfo {
-  return {
-    totalGasUsed: ethers.BigNumber.from(0),
-    totalGasCost: ethers.BigNumber.from(0),
-    totalBalanceDifference: ethers.BigNumber.from(0),
-    perDataProvider: [],
-  };
-}
+  private constructor(
+    public deployment = new OperationInfo(),
+    public registering = new OperationInfo(),
+    public updatingPrices = new OperationInfo(),
+  ) {}
 
-export function initGasTracker(): GasTracker {
-  if (singletonGasTracker === null) {
-    singletonGasTracker = {
-      deployment: initOperationInfo(),
-      registering: initOperationInfo(),
-      updatingPrices: initOperationInfo(),
-      getTotalGasUsedFormatted(operation) {
-        return ethers.utils.formatUnits(this[operation].totalGasUsed, 'wei');
-      },
-      getProviderInfo(operation, address) {
-        return this[operation].perDataProvider.find(d => d.address === address) || null;
-      },
-      getAverageGasCost(operation) {
-        const totalProviders = this[operation].perDataProvider.length;
-        if (totalProviders === 0) return '0';
-        const avgGas = this[operation].totalGasCost.div(totalProviders);
-        return ethers.utils.formatUnits(avgGas, 'wei');
-      },
-      getMedianGasCost(operation) {
-        const sortedGasCosts = this[operation].perDataProvider.map(d => d.gasCost).sort((a, b) => a.sub(b).toNumber());
-        const mid = Math.floor(sortedGasCosts.length / 2);
-        let median = ethers.BigNumber.from(0);
-        if (sortedGasCosts.length % 2 === 0) {
-          median = sortedGasCosts[mid].add(sortedGasCosts[mid - 1]).div(2);
-        } else {
-          median = sortedGasCosts[mid];
-        }
-        return ethers.utils.formatUnits(median, 'wei');
-      },
-      getTotalGasCostFormatted(operation) {
-        return ethers.utils.formatEther(this[operation].totalGasCost);
-      },
-      getTotalBalanceDifferenceFormatted(operation) {
-        return ethers.utils.formatEther(this[operation].totalBalanceDifference);
-      },
-      exportData() {
-        return JSON.stringify(this);
-      },
-      resetData(operation) {
-        if (operation) {
-          this[operation] = initOperationInfo();
-        } else {
-          this.deployment = initOperationInfo();
-          this.registering = initOperationInfo();
-          this.updatingPrices = initOperationInfo();
-        }
-      },
-      getProviderCount(operation) {
-        return new Set(this[operation].perDataProvider.map(d => d.address)).size;
-      },
-      getTransactionCount(operation) {
-        return this[operation].perDataProvider.length;
-      }
-    };
+  public static getInstance(): GasTracker {
+    if (!GasTracker.instance) {
+      GasTracker.instance = new GasTracker();
+    }
+    return GasTracker.instance;
   }
-  
-  return singletonGasTracker;
+  getTotalGasUsedFormatted(operation: OperationKey): string {
+    return formatUnits(this[operation].totalGasUsed, "wei");
+  }
+
+  getTotalGasCostFormatted(operation: OperationKey): string {
+    return formatUnits(this[operation].totalGasCost, "ether");
+  }
+
+  getTotalBalanceDifferenceFormatted(operation: OperationKey): string {
+    return formatUnits(this[operation].totalBalanceDifference, "ether");
+  }
+
+  getTransactionCount(operation: OperationKey): number {
+    return this[operation].perDataProvider.length;
+  }
+
+  displayDataAsTable(network: string): string {
+    let output =
+      "| Operation       | Network        | Gas Cost (eth)       | Gas Used (wei)    | Balance Difference (eth) |\n";
+    output +=
+      "|-----------------|----------------|----------------------|-------------------|---------------------------|\n";
+
+    const operationTotals: Record<
+      OperationKey,
+      { gasCost: BigNumber; gasUsed: BigNumber; balanceDiff: BigNumber }
+    > = {
+      deployment: {
+        gasCost: ethers.BigNumber.from(0),
+        gasUsed: ethers.BigNumber.from(0),
+        balanceDiff: ethers.BigNumber.from(0),
+      },
+      registering: {
+        gasCost: ethers.BigNumber.from(0),
+        gasUsed: ethers.BigNumber.from(0),
+        balanceDiff: ethers.BigNumber.from(0),
+      },
+      updatingPrices: {
+        gasCost: ethers.BigNumber.from(0),
+        gasUsed: ethers.BigNumber.from(0),
+        balanceDiff: ethers.BigNumber.from(0),
+      },
+    };
+
+    let grandTotalGasCost = ethers.BigNumber.from(0);
+    let grandTotalGasUsed = ethers.BigNumber.from(0);
+    let grandTotalBalanceDiff = ethers.BigNumber.from(0);
+
+    for (const operationKey of [
+      "deployment",
+      "registering",
+      "updatingPrices",
+    ] as OperationKey[]) {
+      const operation = this[operationKey];
+
+      for (const entry of operation.perDataProvider) {
+        operationTotals[operationKey].gasCost = operationTotals[
+          operationKey
+        ].gasCost.add(entry.gasCost);
+        operationTotals[operationKey].gasUsed = operationTotals[
+          operationKey
+        ].gasUsed.add(entry.gasUsed);
+        operationTotals[operationKey].balanceDiff = operationTotals[
+          operationKey
+        ].balanceDiff.add(entry.balanceDifference);
+
+        grandTotalGasCost = grandTotalGasCost.add(entry.gasCost);
+        grandTotalGasUsed = grandTotalGasUsed.add(entry.gasUsed);
+        grandTotalBalanceDiff = grandTotalBalanceDiff.add(
+          entry.balanceDifference,
+        );
+      }
+
+      output += `| ${operationKey.padEnd(16)} | ${network.padEnd(
+        14,
+      )} | ${formatUnits(operationTotals[operationKey].gasCost, "ether").padEnd(
+        20,
+      )} | ${formatUnits(operationTotals[operationKey].gasUsed, "wei").padEnd(
+        17,
+      )} | ${formatUnits(
+        operationTotals[operationKey].balanceDiff,
+        "ether",
+      ).padEnd(25)} |\n`;
+    }
+
+    output += `| **Total**        | ${network.padEnd(14)} | ${formatUnits(
+      grandTotalGasCost,
+      "ether",
+    ).padEnd(20)} | ${formatUnits(grandTotalGasUsed, "wei").padEnd(
+      17,
+    )} | ${formatUnits(grandTotalBalanceDiff, "ether").padEnd(25)} |\n`;
+
+    return output;
+  }
+
+  exportData(): string {
+    const flatData = [];
+    ["deployment", "registering", "updatingPrices"].forEach((operationKey) => {
+      const operation = this[operationKey as OperationKey];
+      operation.perDataProvider.forEach((provider: DataProviderInfo) => {
+        flatData.push({
+          operation: operationKey,
+          address: provider.address,
+          gasCost: provider.gasCost,
+          balanceDifference: provider.balanceDifference,
+          totalGasCost: operation.totalGasCost,
+          totalGasUsed: operation.totalGasUsed,
+          totalBalanceDifference: operation.totalBalanceDifference,
+        });
+      });
+    });
+    return toCSV(flatData);
+  }
 }
 
 export function getGasTracker(): GasTracker {
-  if (singletonGasTracker === null) {
-    return initGasTracker();
-  }
-  return singletonGasTracker;
+  return GasTracker.getInstance();
 }
 
 export default GasTracker;
