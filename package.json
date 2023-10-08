@@ -14,7 +14,6 @@
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.7",
     "chalk": "^5.3.0",
-    "depcheck": "^1.4.6",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "hardhat": "^2.12.4",
@@ -33,5 +32,6 @@
     "deploy": "yarn hardhat deploy-zksync --script deploy-simple-oracle.ts",
     "fix:fmt": "prettier --write \"{deploy,test,scripts}/**/*.{ts,js,jsx,tsx}\"",
     "lint:fmt": "prettier --check \"{deploy,test,scripts}/**/*.{ts,js,jsx,tsx}\""
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }
