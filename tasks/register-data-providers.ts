@@ -3,7 +3,7 @@ import { fundAccount, WalletManager } from "../utils/utils";
 import { getGasTracker } from "../utils/gasTracker";
 
 // To run:
-// npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --target-network <networkName> --data-provider-count 4 --fund-amount ".005"
+// npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --data-provider-count 4 --fund-amount ".005" --duration 1
 
 const fetchContractABI = () => {
     const ContractArtifact = require("../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json");

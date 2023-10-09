@@ -66,8 +66,5 @@ module.exports = async function(taskArgs: any, hre: any) {
   console.log(`- Total Gas Cost: ${gasTracker.getTotalGasCostFormatted('updatingPrices')} ETH`);
   console.log(`- Total Balance Difference: ${gasTracker.getTotalBalanceDifferenceFormatted('updatingPrices')} ETH`);
 
-  console.log("\n------------------------------------------------------------");
-  // Display gas tracker data as table
-  const tableStr = gasTracker.displayDataAsTable(hre.network.name);
-  console.log('\n', tableStr);
+  await hre.run("finalize-price", { contract });
 };

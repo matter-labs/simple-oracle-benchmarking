@@ -35,7 +35,7 @@ export const WalletManager = {
     return this.connectedWallets;
   },
 };
-
+// TODO: fix and test
 export function toCSV(data: any[]): string {
   const header = Object.keys(data[0]).join(",");
   const rows = data

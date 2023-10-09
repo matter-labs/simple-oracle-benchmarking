@@ -2,7 +2,7 @@ import { ethers, BigNumber } from "ethers";
 import { toCSV, formatUnits } from "./utils";
 
 // Type for operation keys
-type OperationKey = "deployment" | "registering" | "updatingPrices";
+type OperationKey = "deployment" | "registering" | "updatingPrices" | "finalize";
 
 // Operation Info class (operation = deployment, registering, updatingPrices)
 class OperationInfo {
@@ -30,6 +30,7 @@ class GasTracker {
     public deployment = new OperationInfo(),
     public registering = new OperationInfo(),
     public updatingPrices = new OperationInfo(),
+    public finalize = new OperationInfo(),
   ) {}
 
   public static getInstance(): GasTracker {
@@ -58,7 +59,7 @@ class GasTracker {
     let output =
       "| Operation       | Network        | Gas Cost (eth)       | Gas Used (wei)    | Balance Difference (eth) |\n";
     output +=
-      "|-----------------|----------------|----------------------|-------------------|---------------------------|\n";
+      "|------------------|----------------|----------------------|-------------------|---------------------------|\n";
 
     const operationTotals: Record<
       OperationKey,
@@ -79,35 +80,28 @@ class GasTracker {
         gasUsed: ethers.BigNumber.from(0),
         balanceDiff: ethers.BigNumber.from(0),
       },
+      finalize: {
+        gasCost: ethers.BigNumber.from(0),
+        gasUsed: ethers.BigNumber.from(0),
+        balanceDiff: ethers.BigNumber.from(0),
+      },
     };
 
     let grandTotalGasCost = ethers.BigNumber.from(0);
     let grandTotalGasUsed = ethers.BigNumber.from(0);
     let grandTotalBalanceDiff = ethers.BigNumber.from(0);
 
-    for (const operationKey of [
-      "deployment",
-      "registering",
-      "updatingPrices",
-    ] as OperationKey[]) {
+    for (const operationKey of ['deployment', 'registering', 'updatingPrices', 'finalize'] as OperationKey[]) {
       const operation = this[operationKey];
-
+  
       for (const entry of operation.perDataProvider) {
-        operationTotals[operationKey].gasCost = operationTotals[
-          operationKey
-        ].gasCost.add(entry.gasCost);
-        operationTotals[operationKey].gasUsed = operationTotals[
-          operationKey
-        ].gasUsed.add(entry.gasUsed);
-        operationTotals[operationKey].balanceDiff = operationTotals[
-          operationKey
-        ].balanceDiff.add(entry.balanceDifference);
-
+        operationTotals[operationKey].gasCost = operationTotals[operationKey].gasCost.add(entry.gasCost);
+        operationTotals[operationKey].gasUsed = operationTotals[operationKey].gasUsed.add(entry.gasUsed);
+        operationTotals[operationKey].balanceDiff = operationTotals[operationKey].balanceDiff.add(entry.balanceDifference);
+  
         grandTotalGasCost = grandTotalGasCost.add(entry.gasCost);
         grandTotalGasUsed = grandTotalGasUsed.add(entry.gasUsed);
-        grandTotalBalanceDiff = grandTotalBalanceDiff.add(
-          entry.balanceDifference,
-        );
+        grandTotalBalanceDiff = grandTotalBalanceDiff.add(entry.balanceDifference);
       }
 
       output += `| ${operationKey.padEnd(16)} | ${network.padEnd(
@@ -131,7 +125,7 @@ class GasTracker {
 
     return output;
   }
-
+  // TODO: fix and test
   exportData(): string {
     const flatData = [];
     ["deployment", "registering", "updatingPrices"].forEach((operationKey) => {

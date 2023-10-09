@@ -48,7 +48,7 @@ contract SimpleOracle {
     }
 
     function finalizePrice() external {
-         require(dataProviderCount > 0, "No data providers updated prices");
+        require(dataProviderCount > 0, "No data providers");
         aggregatedPrice = totalTempPrices / dataProviderCount;
 
         totalTempPrices = 0;

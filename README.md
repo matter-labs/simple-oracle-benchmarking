@@ -1,6 +1,6 @@
-# Simple Oracle Benchmarking 📊🔍
+# Simple Oracle Benchmarking 📊
 
-Benchmark the gas costs for a simple oracle contract across different networks! 💡
+Benchmark the gas costs for a simple oracle contract across different networks!
 
 ## How It Works 🛠
 
@@ -17,19 +17,19 @@ Benchmark the gas costs for a simple oracle contract across different networks! 
 
 ## Setup and Execution 🚀
 
-### 1. Install Dependencies
+## 1. Install Dependencies
 
 ```bash
 yarn install
 ```
 
-### 2. Compile the Oracle Contract
+## 2. Compile the Oracle Contract
 
 ```bash
 yarn compile:contracts
 ```
 
-### 3. Local Environments
+## 3. Local Environments
 
 Provided in this repo are scripts that will clone and execute local dev environments for zkSync Era, Arbitrum, Optimism, and PolygonzkEVM. To run:
 
@@ -46,28 +46,62 @@ Then execute the script you want to run:
 
 📖 [zkSync Docs - Testing](https://era.zksync.io/docs/tools/testing/)
 
-### 4. Environment Variables Setup 🌳
-
-For security reasons (especially to avoid the leakage of private keys), we use the `dotenv` package. 
+## 4. Environment Variables Setup 🌳
 
 Rename `.env.example` to `.env` and fill in your details:
 
 ```
-WALLET_PRIVATE_KEY=your_private_key_here
+# Local private keys for testing these are RICH accounts created by the local node (under /scripts)
+LOCAL_ZKSYNC_KEY=
+LOCAL_OPTIMISM_KEY=
+LOCAL_POLYGONZK_KEY=
+LOCAL_ARBITRUM_KEY=
+LOCAL_LINEAR_KEY=
+LOCAL_SCROLL_KEY=
+
+# Private keys for the testnet, can be used for all networks
+TESTNET_KEY=
+
+# Private keys for the mainnet, can be used for all networks
+MAINNET_KEY=
 ```
 
-### 5. Running the Benchmark
+## 5. Benchmark Execution
+
+### Deployment
+
+Deploy the SimpleOracle contract using the following command:
 
 ```bash
-# yarn run:benchmark --network=zkSyncLocalnet
-yarn run:benchmark --network=<NETWORK>
+npx hardhat --network <network> deploy --tags SimpleOracle
 ```
 
-**Note:** Specify an individual network (refer to /scripts/networks) or use testnet for all testnets and mainnet for all mainnets.
+#### Example:
 
-## Usage 🛠
+```bash
+npx hardhat --network zksync-local deploy --tags SimpleOracle
+```
 
-- `yarn test`: Runs unit test
-- `yarn run:benchmark --network=<NETWORK>`: Starts benchmarking script from `benchmark.ts`
-- `yarn deploy`: Deploy SimpleOracle.sol
-- `yarn fix:fmt`: Fixes formatting
+### Benchmarking
+
+Run the benchmark task using:
+
+```bash
+npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --data-provider-count <int> --fund-amount <int> --duration <int>
+```
+
+#### Default Parameters:
+- **Data Provider Count**: 3
+- **Fund Amount**: 0.004 ETH
+- **Duration**: 1 minute
+
+#### Example:
+
+```bash
+npx hardhat benchmark-simple-oracle --contract 0x26b368C3Ed16313eBd6660b72d8e4439a69
+```
+
+### Additional Tasks
+
+- **Unit Testing**: `yarn test`
+- **Code Formatting**: `yarn fix:fmt`
