@@ -75,7 +75,10 @@ async function deployOnOtherNetworks(
   return deployedContract.address;
 }
 
-module.exports = async function (hre: HardhatRuntimeEnvironment, taskArgs: any) {
+module.exports = async function (
+  hre: HardhatRuntimeEnvironment,
+  taskArgs: any,
+) {
   const networkName = hre.network.name;
   const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
   const accounts = hre.network.config.accounts || [];
