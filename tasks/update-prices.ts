@@ -53,7 +53,7 @@ module.exports = async function(taskArgs: any, hre: any) {
   console.log(`\n🚀 Price updates starting for ${wallets.length} data providers for ${maxUpdates} updates each\n`); 
 
   await Promise.all(wallets.map((wallet) => {
-    return updatePriceForDuration(wallet, new ethers.Contract(contract, fetchContractABI(hre.network.name), wallet), gasTracker, maxUpdates, totalUpdates);
+    return updatePrice(wallet, new ethers.Contract(contract, fetchContractABI(hre.network.name), wallet), gasTracker, maxUpdates, totalUpdates);
   }));
 
   console.log(`\n✅ Price Update Summary:`);
