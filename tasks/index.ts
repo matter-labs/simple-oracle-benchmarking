@@ -17,10 +17,10 @@ task("benchmark-simple-oracle", "Benchmarks the SimpleOracle contract")
     "The amount of ETH to fund each data provider with",
     ".004",
   )
-  .addOptionalParam(
-    "duration",
-    "The amount of time to execute updatePrice method",
-    "1",
+  .addParam(
+    "maxUpdates",
+    "The number of times a data provider will execute updatePrice method",
+    "5",
   )
   .setAction(async (args, hre) => {
     await require("../deploy/SimpleOracle")(hre, args);
@@ -39,17 +39,21 @@ task("register-providers", "Registers data providers")
     "The amount of ETH to fund each data provider with",
     ".004",
   )
-  .addOptionalParam(
-    "duration",
-    "The amount of time to execute updatePrice method",
-    "1",
+  .addParam(
+    "maxUpdates",
+    "The number of times a data provider will execute updatePrice method",
+    "5",
   )
   .setAction(require("./register-data-providers"));
 
 // This gets called automatically when running benchmark-simple-oracle
 task("update-prices", "Updates prices")
   .addParam("contract", "The address of the SimpleOracle contract")
-  .addParam("duration", "The amount of time to execute updatePrice method", "1")
+  .addParam(
+    "maxUpdates",
+    "The number of times a data provider will execute updatePrice method",
+    "5",
+  )
   .setAction(require("./update-prices"));
 
 // This gets called automatically when running benchmark-simple-oracle

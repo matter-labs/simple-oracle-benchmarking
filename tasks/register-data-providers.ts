@@ -4,11 +4,9 @@ import { getGasTracker } from "../utils/gasTracker";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 module.exports = async function(taskArgs :any, hre: HardhatRuntimeEnvironment) {
-  const { contract, dataProviderCount = 3, fundAmount = ".004", duration = 1 } = taskArgs;
-  
+  const { contract, dataProviderCount, fundAmount, maxUpdates } = taskArgs;
   // Fetch GasTracker
   const gasTracker = getGasTracker();
-
   // Wallet setup
   const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
   const accounts = hre.network.config.accounts || [];
@@ -72,5 +70,5 @@ module.exports = async function(taskArgs :any, hre: HardhatRuntimeEnvironment) {
   console.log(`- Total Gas Cost: ${gasTracker.getTotalGasCostFormatted('registering')} ETH`);
   console.log(`- Total Balance Difference: ${gasTracker.getTotalBalanceDifferenceFormatted('registering')} ETH`);
 
-  await hre.run("update-prices", { contract, duration });
+  await hre.run("update-prices", { contract, maxUpdates });
 };

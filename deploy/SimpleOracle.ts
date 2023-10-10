@@ -75,7 +75,7 @@ async function deployOnOtherNetworks(
   return deployedContract.address;
 }
 
-module.exports = async function (hre: HardhatRuntimeEnvironment) {
+module.exports = async function (hre: HardhatRuntimeEnvironment, taskArgs: any) {
   const networkName = hre.network.name;
   const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
   const accounts = hre.network.config.accounts || [];
@@ -113,7 +113,7 @@ module.exports = async function (hre: HardhatRuntimeEnvironment) {
     gasTracker.getTotalBalanceDifferenceFormatted("deployment"),
   );
 
-  await hre.run("register-providers", { contract });
+  await hre.run("register-providers", { contract, ...taskArgs });
 };
 
 module.exports.tags = ["SimpleOracle"];

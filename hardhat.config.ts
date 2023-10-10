@@ -42,11 +42,18 @@ const config: HardhatUserConfig = {
       zksync: true,
       accounts: [process.env.LOCAL_ZKSYNC_KEY || ""],
     },
-    "zksync-testnet": {
+    "zksync-goerli": {
       url: "https://zksync2-testnet.zksync.dev",
       ethNetwork: "goerli",
       zksync: true,
       chainId: 280,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
+    "zksync-sepolia": {
+      url: "https://sepolia.era.zksync.dev",
+      ethNetwork: "sepolia",
+      zksync: true,
+      chainId: 300,
       accounts: [process.env.TESTNET_KEY || ""],
     },
     zksync: {

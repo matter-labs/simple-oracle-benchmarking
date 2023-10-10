@@ -6,7 +6,7 @@ Benchmark the gas costs for a simple oracle contract across different networks!
 
 1. **Deploy**: The script deploys a simple oracle contract to a specified network.
 2. **Register Data Providers**: Three dataProviders are created, funded, and then registered.
-3. **Update Prices**: Each dataProvider updates the price with a random value every second for 60 seconds. (To adjust the duration, modify the value in `/scripts/oracleOps.ts`).
+3. **Update Prices**: Each dataProvider updates the price with a random value X number of times. Default is 5 per data provider. (To adjust the max-updates, pass in `--max-updates x`).
 4. **Finalize Prices**: The `finalizePrice` function is called from the owner's account.
 5. **Review Results**: At the end, you get a detailed table showcasing the gas costs for each operation. 📈
 
@@ -26,7 +26,7 @@ yarn install
 ## 2. Compile the Oracle Contract
 
 ```bash
-yarn compile:contracts
+yarn hardhat compile
 ```
 
 ## 3. Local Environments
@@ -73,19 +73,21 @@ MAINNET_KEY=
 Run the benchmark task using:
 
 ```bash
-npx hardhat benchmark-simple-oracle --network <network> --data-provider-count <int> --fund-amount <int> --duration <int>
+npx hardhat benchmark-simple-oracle --network <network> --data-provider-count <int> --fund-amount <int> --max-updates <int>
 ```
 
 #### Default Parameters:
 - **Data Provider Count**: 3
 - **Fund Amount**: 0.004 ETH
-- **Duration**: 1 minute
+- **Max Updates**: 5 updatePrice call for each data provider
 
 #### Example:
 
 ```bash
-npx hardhat benchmark-simple-oracle --network zksync-local
+npx hardhat benchmark-simple-oracle --network zksync-local --max-updates 10
 ```
+
+This will deploy the `SimpleOracle.sol` contract to the specified network, proceed to register the data providers, then call update price with random numbers for the specified amount of times (e.g. 10 times per data provider), finalize the price, and provide a gas breakdown for each operation. 
 
 ### Additional Tasks
 
