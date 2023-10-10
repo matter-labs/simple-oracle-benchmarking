@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from "ethers";
-import { toCSV, formatUnits } from "./utils";
+import { formatUnits } from "./utils";
 
 // Type for operation keys
 type OperationKey = "deployment" | "registering" | "updatingPrices" | "finalize";
@@ -23,6 +23,7 @@ class DataProviderInfo {
 }
 
 // GasTracker class
+// Used to track gas costs and balance differences for each operation
 class GasTracker {
   private static instance: GasTracker;
 
@@ -54,7 +55,7 @@ class GasTracker {
   getTransactionCount(operation: OperationKey): number {
     return this[operation].perDataProvider.length;
   }
-
+  // Displays data in a table format, called at the end of the script
   displayDataAsTable(network: string): string {
     let output =
       "| Operation       | Network        | Gas Cost (eth)       | Gas Used (wei)    | Balance Difference (eth) |\n";
@@ -94,15 +95,21 @@ class GasTracker {
     for (const operationKey of ['deployment', 'registering', 'updatingPrices', 'finalize'] as OperationKey[]) {
       const operation = this[operationKey];
   
-      for (const entry of operation.perDataProvider) {
-        operationTotals[operationKey].gasCost = operationTotals[operationKey].gasCost.add(entry.gasCost);
-        operationTotals[operationKey].gasUsed = operationTotals[operationKey].gasUsed.add(entry.gasUsed);
-        operationTotals[operationKey].balanceDiff = operationTotals[operationKey].balanceDiff.add(entry.balanceDifference);
-  
-        grandTotalGasCost = grandTotalGasCost.add(entry.gasCost);
-        grandTotalGasUsed = grandTotalGasUsed.add(entry.gasUsed);
-        grandTotalBalanceDiff = grandTotalBalanceDiff.add(entry.balanceDifference);
+      if (operation.perDataProvider.length === 0) {
+        operationTotals[operationKey].gasCost = operation.totalGasCost;
+        operationTotals[operationKey].gasUsed = operation.totalGasUsed;
+        operationTotals[operationKey].balanceDiff = operation.totalBalanceDifference;
+      } else {
+        for (const entry of operation.perDataProvider) {
+          operationTotals[operationKey].gasCost = operationTotals[operationKey].gasCost.add(entry.gasCost);
+          operationTotals[operationKey].gasUsed = operationTotals[operationKey].gasUsed.add(entry.gasUsed);
+          operationTotals[operationKey].balanceDiff = operationTotals[operationKey].balanceDiff.add(entry.balanceDifference);
+        }
       }
+
+      grandTotalGasCost = grandTotalGasCost.add(operationTotals[operationKey].gasCost);
+      grandTotalGasUsed = grandTotalGasUsed.add(operationTotals[operationKey].gasUsed);
+      grandTotalBalanceDiff = grandTotalBalanceDiff.add(operationTotals[operationKey].balanceDiff);
 
       output += `| ${operationKey.padEnd(16)} | ${network.padEnd(
         14,
@@ -125,27 +132,8 @@ class GasTracker {
 
     return output;
   }
-  // TODO: fix and test
-  exportData(): string {
-    const flatData = [];
-    ["deployment", "registering", "updatingPrices"].forEach((operationKey) => {
-      const operation = this[operationKey as OperationKey];
-      operation.perDataProvider.forEach((provider: DataProviderInfo) => {
-        flatData.push({
-          operation: operationKey,
-          address: provider.address,
-          gasCost: provider.gasCost,
-          balanceDifference: provider.balanceDifference,
-          totalGasCost: operation.totalGasCost,
-          totalGasUsed: operation.totalGasUsed,
-          totalBalanceDifference: operation.totalBalanceDifference,
-        });
-      });
-    });
-    return toCSV(flatData);
-  }
 }
-
+// Get the GasTracker instance
 export function getGasTracker(): GasTracker {
   return GasTracker.getInstance();
 }

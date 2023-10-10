@@ -1,20 +1,16 @@
 import { ethers } from "ethers";
-import { WalletManager } from "../utils/utils";
+import { WalletManager, fetchContractABI } from "../utils/utils";
 import GasTracker, { getGasTracker } from "../utils/gasTracker";
-
-const fetchContractABI = () => {
-  const ContractArtifact = require("../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json");
-  return ContractArtifact.abi;
-};
 
 const finalizePrice = async (
   wallet: ethers.Wallet,
   contractAddress: string,
   gasTracker: GasTracker,
+  networkName: string,
 ) => {
   const contract = new ethers.Contract(
     contractAddress,
-    fetchContractABI(),
+    fetchContractABI(networkName),
     wallet,
   );
   const startingBalance = await wallet.getBalance();
@@ -40,6 +36,8 @@ const finalizePrice = async (
     gasCost: cost,
     balanceDifference: deltaBalance,
   });
+
+  console.log("🏷️  Price Successfully Finalized:", await contract.getPrice());
 };
 
 module.exports = async function (taskArgs: any, hre: any) {
@@ -52,8 +50,9 @@ module.exports = async function (taskArgs: any, hre: any) {
     console.log("No wallet found to finalize the price.");
     return;
   }
-
-  await finalizePrice(selectedWallet, contract, gasTracker);
+  console.log("\n------------------------------------------------------------");
+  console.log("🪄 Finalizing price with wallet:", selectedWallet.address);
+  await finalizePrice(selectedWallet, contract, gasTracker, hre.network.name);
 
   console.log(`\n✅ Finalize Price Summary:`);
   console.log("- Data Providers Involved: 1");

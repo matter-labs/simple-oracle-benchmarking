@@ -1,11 +1,6 @@
 import { ethers } from 'ethers';
-import { WalletManager } from '../utils/utils';
+import { WalletManager, fetchContractABI } from '../utils/utils';
 import GasTracker, { getGasTracker } from '../utils/gasTracker';
-
-const fetchContractABI = () => {
-  const ContractArtifact = require('../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json');
-  return ContractArtifact.abi;
-};
 
 const updatePriceForDuration = async (wallet: ethers.Wallet, contractInstance: ethers.Contract, gasTracker: GasTracker, endTime: number, totalUpdates: { count: number }) => {
   const withSigner = contractInstance.connect(wallet);
@@ -56,7 +51,7 @@ module.exports = async function(taskArgs: any, hre: any) {
   console.log(`\n🚀 Price updates starting for ${wallets.length} data providers for ${duration} minutes\n`);
 
   await Promise.all(wallets.map((wallet) => {
-    return updatePriceForDuration(wallet, new ethers.Contract(contract, fetchContractABI(), wallet), gasTracker, endTime, totalUpdates);
+    return updatePriceForDuration(wallet, new ethers.Contract(contract, fetchContractABI(hre.network.name), wallet), gasTracker, endTime, totalUpdates);
   }));
 
   console.log(`\n✅ Price Update Summary:`);

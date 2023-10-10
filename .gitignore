@@ -144,3 +144,4 @@ cache/
 .env
 .env.prod
 wallets.json
+deployments/

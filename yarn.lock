@@ -631,6 +631,14 @@
     mcl-wasm "^0.7.1"
     rustbn.js "~0.2.0"
 
+"@nomicfoundation/hardhat-ethers@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-ethers/-/hardhat-ethers-3.0.4.tgz#6f0df2424e687e26d6574610de7a36bd69485cc1"
+  integrity sha512-k9qbLoY7qn6C6Y1LI0gk2kyHXil2Tauj4kGzQ8pgxYXIGw8lWn8tuuL72E11CrlKaXRUvOgF0EXrv/msPI2SbA==
+  dependencies:
+    debug "^4.1.1"
+    lodash.isequal "^4.5.0"
+
 "@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@nomicfoundation/solidity-analyzer-darwin-arm64/-/solidity-analyzer-darwin-arm64-0.1.1.tgz#4c858096b1c17fe58a474fe81b46815f93645c15"
@@ -2073,6 +2081,11 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@^4.2.0, 
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
+hardhat-deploy-ethers@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.4.1.tgz#dd70b0cc413ed99e98994047b383a004cf1c14f8"
+  integrity sha512-RM6JUcD0dOCjemxnKLtK7XQQI7NWn+LxF5qicGYax0PtWayEUXAewOb4WIHZ/yearhj+s2t6dL0MnHyLTENwJg==
+
 hardhat-deploy@^0.10.5:
   version "0.10.6"
   resolved "https://registry.yarnpkg.com/hardhat-deploy/-/hardhat-deploy-0.10.6.tgz#007d9c51484ffcf6187425a4288de9dd7d0a5999"
@@ -2468,6 +2481,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==
 
 lodash.truncate@^4.4.2:
   version "4.4.2"

@@ -68,26 +68,12 @@ MAINNET_KEY=
 
 ## 5. Benchmark Execution
 
-### Deployment
-
-Deploy the SimpleOracle contract using the following command:
-
-```bash
-npx hardhat --network <network> deploy --tags SimpleOracle
-```
-
-#### Example:
-
-```bash
-npx hardhat --network zksync-local deploy --tags SimpleOracle
-```
-
 ### Benchmarking
 
 Run the benchmark task using:
 
 ```bash
-npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --data-provider-count <int> --fund-amount <int> --duration <int>
+npx hardhat benchmark-simple-oracle --network <network> --data-provider-count <int> --fund-amount <int> --duration <int>
 ```
 
 #### Default Parameters:
@@ -98,7 +84,7 @@ npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --d
 #### Example:
 
 ```bash
-npx hardhat benchmark-simple-oracle --contract 0x26b368C3Ed16313eBd6660b72d8e4439a69
+npx hardhat benchmark-simple-oracle --network zksync-local
 ```
 
 ### Additional Tasks

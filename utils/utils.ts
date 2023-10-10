@@ -12,20 +12,23 @@ export async function fundAccount(
   address: string,
   amount: string,
 ) {
-  const txResponse = await wallet.sendTransaction({
-    to: address,
-    value: ethers.utils.parseEther(amount),
-  });
-  
-  await txResponse.wait();
-  console.log(`💵 Funded ${address} with ${amount} ETH. 📍 Tx Hash: ${txResponse.hash}`);
+  try {
+    const txResponse = await wallet.sendTransaction({
+      to: address,
+      value: ethers.utils.parseEther(amount),
+    });
+    await txResponse.wait();
+    console.log(`💵 Funded ${address} with ${amount} ETH. 📍 Tx Hash: ${txResponse.hash}`);
+  } catch (e) {
+    console.log(`❌ Error funding ${address} with ${amount} ETH: ${e.message}`);
+  }
 }
 
 // Utility function for formatting units
 export function formatUnits(value: ethers.BigNumber, unit: string): string {
   return ethers.utils.formatUnits(value, unit);
 }
-
+// Utility function for managing connected wallets
 export const WalletManager = {
   connectedWallets: [] as ethers.Wallet[],
   updateConnectedWallets(wallets: ethers.Wallet[]) {
@@ -35,20 +38,13 @@ export const WalletManager = {
     return this.connectedWallets;
   },
 };
-// TODO: fix and test
-export function toCSV(data: any[]): string {
-  const header = Object.keys(data[0]).join(",");
-  const rows = data
-    .map((row) => {
-      return Object.values(row)
-        .map((field) => {
-          if (field && typeof field === "object" && "hex" in field) {
-            return field.hex;
-          }
-          return field;
-        })
-        .join(",");
-    })
-    .join("\n");
-  return `${header}\n${rows}`;
-}
+// Utility function for fetching contract ABI for a given network
+export const fetchContractABI = (networkName: string) => {
+  if (networkName.startsWith("zksync")) {
+    const ContractArtifact = require("../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json");
+    return ContractArtifact.abi;
+  } else {
+    const ContractArtifact = require("../artifacts/contracts/SimpleOracle.sol/SimpleOracle.json");
+    return ContractArtifact.abi;
+  }
+};

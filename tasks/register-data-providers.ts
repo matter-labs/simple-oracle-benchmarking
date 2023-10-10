@@ -1,42 +1,36 @@
 import { ethers } from "ethers";
-import { fundAccount, WalletManager } from "../utils/utils";
+import { fundAccount, WalletManager, fetchContractABI } from "../utils/utils";
 import { getGasTracker } from "../utils/gasTracker";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-// To run:
-// npx hardhat benchmark-simple-oracle --contract <SimpleOracleContractAddress> --data-provider-count 4 --fund-amount ".005" --duration 1
-
-const fetchContractABI = () => {
-    const ContractArtifact = require("../artifacts-zk/contracts/SimpleOracle.sol/SimpleOracle.json");
-    return ContractArtifact.abi;
-};
-
-module.exports = async function(taskArgs, hre) {
+module.exports = async function(taskArgs :any, hre: HardhatRuntimeEnvironment) {
   const { contract, dataProviderCount = 3, fundAmount = ".004", duration = 1 } = taskArgs;
-  // Initialize the GasTracker instance
-  const gasTracker = getGasTracker();
   
+  // Fetch GasTracker
+  const gasTracker = getGasTracker();
+
+  // Wallet setup
   const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
   const accounts = hre.network.config.accounts || [];
   const deployerAccount = accounts[0];
   const deployerWallet = new ethers.Wallet(deployerAccount).connect(provider);
-  
   // Create new data providers
   const dataProviders = Array(Number(dataProviderCount))
     .fill(null)
     .map(() => new ethers.Wallet(ethers.Wallet.createRandom().privateKey));
-
   const connectedWallets = dataProviders.map((wallet) => wallet.connect(provider));
   WalletManager.updateConnectedWallets(connectedWallets);
 
   // Fund data providers
-  console.log("💰 Funding data providers...");
+  console.log("\n------------------------------------------------------------");
+  console.log("\n💰 Funding data providers...");
   for (const dataProvider of dataProviders) {
     await fundAccount(deployerWallet, dataProvider.address, fundAmount);
   }
 
   const contractInstance = new ethers.Contract(
     contract,
-    fetchContractABI(),
+    fetchContractABI(hre.network.name),
     connectedWallets[0]
   );
 
