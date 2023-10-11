@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+.yarnrc.yml
+.yarn
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -140,3 +142,6 @@ cache/
 /scripts/local-setups/zkevm-node
 /scripts/local-setups/local-setup
 .env
+.env.prod
+wallets.json
+deployments/
