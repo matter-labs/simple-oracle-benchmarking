@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { WalletManager, fetchContractABI } from "../utils/utils";
+import { WalletManager, fetchContractABI, transferRemainingFunds } from "../utils/utils";
 import GasTracker, { getGasTracker } from "../utils/gasTracker";
 
 const finalizePrice = async (
@@ -17,7 +17,7 @@ const finalizePrice = async (
   const tx = await contract.finalizePrice();
   const receipt = await tx.wait();
   const { gasUsed } = receipt;
-  
+
   let gasPrice =
     receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
   const cost = gasUsed.mul(gasPrice);
@@ -36,16 +36,22 @@ const finalizePrice = async (
     gasCost: cost,
     balanceDifference: deltaBalance,
   });
+  gasTracker.finalize.gasPrice = gasPrice;
 
   console.log("🏷️  Price Successfully Finalized:", await contract.getPrice());
 };
 
 module.exports = async function (taskArgs: any, hre: any) {
   const { contract } = taskArgs;
+  // withdraw remaining funds from these wallets (dataProviders) to the deployer wallet
   const wallets = WalletManager.getConnectedWallets();
+  const provider = new ethers.providers.JsonRpcProvider(hre.network.config.url);
+  const accounts = hre.network.config.accounts || [];
+  const deployerAccount = accounts[0];
+  const selectedWallet = new ethers.Wallet(deployerAccount).connect(provider);
+
   const gasTracker = getGasTracker();
 
-  const selectedWallet = wallets[0];
   if (!selectedWallet) {
     console.log("No wallet found to finalize the price.");
     return;
@@ -73,5 +79,8 @@ module.exports = async function (taskArgs: any, hre: any) {
   console.log("\n------------------------------------------------------------");
   // Display gas tracker data as table
   const tableStr = gasTracker.displayDataAsTable(hre.network.name);
-  console.log('\n', tableStr);
+  console.log("\n", tableStr);
+
+  // Transfer remaining funds from data provider wallets to deployer wallet
+  await transferRemainingFunds(selectedWallet, wallets, provider);
 };

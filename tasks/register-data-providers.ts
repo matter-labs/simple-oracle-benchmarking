@@ -47,6 +47,7 @@ module.exports = async function(taskArgs :any, hre: HardhatRuntimeEnvironment) {
     let gasPrice =
     receipt.effectiveGasPrice || (await wallet.provider.getGasPrice());
     gasTracker.registering.totalGasUsed = gasTracker.registering.totalGasUsed.add(receipt.gasUsed);
+    gasTracker.registering.gasPrice = gasPrice;
     // NOTE: gasPrice may cause inaccurate gas cost calculations
     const gasCost = gasPrice.mul(receipt.gasUsed);
     const balanceDifference = startBalance.sub(endBalance);

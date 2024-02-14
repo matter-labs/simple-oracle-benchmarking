@@ -48,3 +48,45 @@ export const fetchContractABI = (networkName: string) => {
     return ContractArtifact.abi;
   }
 };
+
+// Utility function for transferring remaining funds from data provider wallets to the deployer wallet
+export const transferRemainingFunds = async (selectedWallet: ethers.Wallet, wallets: any, provider: any) => {
+  console.log("\n------------------------------------------------------------");
+  console.log("🔄 Transferring remaining funds to deployer wallet...");
+
+  const safetyMargin = ethers.utils.parseUnits("0.002", "ether"); // Increased safety margin
+  const minimumTransferable = ethers.utils.parseUnits("0.01", "ether"); // Minimum amount worth transferring
+
+  for (const wallet of wallets) {
+    const balance = await wallet.getBalance();
+    if (balance.gt(safetyMargin)) { // Ensure there's at least the safety margin
+      const gasPrice = await provider.getGasPrice();
+      const estimatedGasLimit = ethers.BigNumber.from("21000"); // Standard gas limit for an ETH transfer
+      const totalGasCost = estimatedGasLimit.mul(gasPrice).add(safetyMargin); // Include safety margin in gas cost
+
+      const valueToSend = balance.sub(totalGasCost);
+      if (valueToSend.gte(minimumTransferable)) { // Proceed only if the remaining value is above the minimum transferable amount
+        const txObject = {
+          to: selectedWallet.address,
+          value: valueToSend,
+          gasPrice: gasPrice,
+          gasLimit: estimatedGasLimit,
+        };
+
+        try {
+          const tx = await wallet.sendTransaction(txObject);
+          const receipt = await tx.wait();
+          console.log(`💸 Transferred ${ethers.utils.formatEther(valueToSend)} ETH from ${wallet.address} to ${selectedWallet.address} | Transaction: ${receipt.transactionHash}`);
+        } catch (error) {
+          console.error(`Failed to transfer from ${wallet.address} to ${selectedWallet.address}:`, error.message);
+        }
+      } else {
+        console.log(`🚫 Wallet ${wallet.address} balance after gas costs is below the minimum transferable amount. Skipping transfer.`);
+      }
+    } else {
+      console.log(`🚫 Wallet ${wallet.address} has insufficient funds to cover the safety margin. Skipping transfer.`);
+    }
+  }
+
+  console.log("\n------------------------------------------------------------");
+};

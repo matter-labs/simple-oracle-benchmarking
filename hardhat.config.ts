@@ -73,6 +73,11 @@ const config: HardhatUserConfig = {
       chainId: 420,
       accounts: [process.env.TESTNET_KEY || ""],
     },
+    "optimism-sepolia": {
+      url: "https://optimism-sepolia.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
+      chainId: 11155420,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
     optimism: {
       url: "https://optimism.publicnode.com",
       chainId: 10,
@@ -83,8 +88,8 @@ const config: HardhatUserConfig = {
       chainId: 1001,
       accounts: [process.env.LOCAL_POLYGONZK_KEY || ""],
     },
-    "polygonzk-testnet": {
-      url: "https://rpc.public.zkevm-test.net",
+    "polygonzkevm-testnet": {
+      url: "https://rpc.ankr.com/polygon_zkevm_testnet",
       chainId: 1442,
       accounts: [process.env.TESTNET_KEY || ""],
     },
@@ -98,9 +103,14 @@ const config: HardhatUserConfig = {
       chainId: 412346,
       accounts: [process.env.LOCAL_ARBITRUM_KEY || ""],
     },
-    "arbitrum-testnet": {
+    "arbitrum-goerli": {
       url: "https://arbitrum-goerli.publicnode.com",
       chainId: 421613,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
+    "arbitrum-sepolia": {
+      url: "https://arbitrum-sepolia.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
+      chainId: 421614,
       accounts: [process.env.TESTNET_KEY || ""],
     },
     arbitrum: {
@@ -108,8 +118,8 @@ const config: HardhatUserConfig = {
       chainId: 42161, 
       accounts: [process.env.MAINNET_KEY || ""],
     },
-    "linea-testnet": {
-      url: "https://rpc.goerli.linea.build/",
+    "linea-goerli": {
+      url: "https://linea-goerli.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
       chainId: 59140,
       accounts: [process.env.TESTNET_KEY || ""],
     },
@@ -118,9 +128,14 @@ const config: HardhatUserConfig = {
       chainId: 59144,
       accounts: [process.env.MAINNET_KEY || ""],
     },
-    "scroll-testnet": {
-      url: "https://alpha-rpc.scroll.io/l2",
-      chainId: 534353,
+    "scroll-sepolia": {
+      url: "https://rpc.ankr.com/scroll_sepolia_testnet",
+      chainId: 534351,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
+    scroll: {
+      url: "https://rpc.ankr.com/scroll",
+      chainId: 534352,
       accounts: [process.env.TESTNET_KEY || ""],
     },
   },
