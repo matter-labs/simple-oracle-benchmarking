@@ -74,7 +74,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.TESTNET_KEY || ""],
     },
     "optimism-sepolia": {
-      url: "https://optimism-sepolia.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
+      url: `https://optimism-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 11155420,
       accounts: [process.env.TESTNET_KEY || ""],
     },
@@ -109,7 +109,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.TESTNET_KEY || ""],
     },
     "arbitrum-sepolia": {
-      url: "https://arbitrum-sepolia.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
+      url: `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 421614,
       accounts: [process.env.TESTNET_KEY || ""],
     },
@@ -119,12 +119,12 @@ const config: HardhatUserConfig = {
       accounts: [process.env.MAINNET_KEY || ""],
     },
     "linea-goerli": {
-      url: "https://linea-goerli.infura.io/v3/1eabcb680fa84053b65eb42f30e7816e",
+      url: `https://linea-goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 59140,
       accounts: [process.env.TESTNET_KEY || ""],
     },
     linea: {
-      url: "https://linea-mainnet.infura.io/v3",
+      url: `https://linea-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 59144,
       accounts: [process.env.MAINNET_KEY || ""],
     },
