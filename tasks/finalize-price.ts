@@ -1,5 +1,10 @@
 import { ethers } from "ethers";
-import { WalletManager, fetchContractABI, transferRemainingFunds } from "../utils/utils";
+import {
+  WalletManager,
+  fetchContractABI,
+  transferRemainingFunds,
+  L1_RPC_URL,
+} from "../utils/utils";
 import GasTracker, { getGasTracker } from "../utils/gasTracker";
 
 const finalizePrice = async (
@@ -8,6 +13,8 @@ const finalizePrice = async (
   gasTracker: GasTracker,
   networkName: string,
 ) => {
+  const l1Provider = new ethers.providers.JsonRpcProvider(L1_RPC_URL);
+  const l1gasPrice = await l1Provider.getGasPrice();
   const contract = new ethers.Contract(
     contractAddress,
     fetchContractABI(networkName),
@@ -36,7 +43,8 @@ const finalizePrice = async (
     gasCost: cost,
     balanceDifference: deltaBalance,
   });
-  gasTracker.finalize.gasPrice = gasPrice;
+  gasTracker.finalize.l2gasPrice = gasPrice;
+  gasTracker.finalize.l1gasPrice = l1gasPrice;
 
   console.log("🏷️  Price Successfully Finalized:", await contract.getPrice());
 };
@@ -66,15 +74,17 @@ module.exports = async function (taskArgs: any, hre: any) {
     `- Total Gas Used: ${gasTracker.finalize.totalGasUsed.toString()} (in wei)`,
   );
   console.log(
-    `- Total Gas Cost: ${ethers.utils.formatEther(
-      gasTracker.finalize.totalGasCost.toString(),
-    )} ETH`,
+    `- Total Gas Used: ${gasTracker.getTotalGasUsedFormatted(
+      "finalize",
+    )} (in wei)`,
   );
   console.log(
-    `- Total Delta Balance: ${ethers.utils.formatEther(
-      gasTracker.finalize.totalBalanceDifference.toString(),
+    `- Total Balance Difference: ${gasTracker.getTotalBalanceDifferenceFormatted(
+      "finalize",
     )} ETH`,
   );
+  console.log("- L2 Gas Price:", gasTracker.getL2GasPriceFormatted("finalize"));
+  console.log("- L1 Gas Price:", gasTracker.getL1GasPriceFormatted("finalize"));
 
   console.log("\n------------------------------------------------------------");
   // Display gas tracker data as table

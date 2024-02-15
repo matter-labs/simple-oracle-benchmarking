@@ -14,7 +14,8 @@ class OperationInfo {
   totalGasUsed = ethers.BigNumber.from(0);
   totalBalanceDifference = ethers.BigNumber.from(0);
   perDataProvider: Array<DataProviderInfo> = [];
-  gasPrice: ethers.BigNumber = ethers.BigNumber.from(0);
+  l2gasPrice: ethers.BigNumber = ethers.BigNumber.from(0);
+  l1gasPrice: ethers.BigNumber = ethers.BigNumber.from(0);
 }
 
 // DataProvider Info class
@@ -57,15 +58,23 @@ class GasTracker {
     return formatUnits(this[operation].totalBalanceDifference, "ether");
   }
 
+  getL2GasPriceFormatted(operation: OperationKey): string {
+    return formatUnits(this[operation].l2gasPrice, "gwei");
+  }
+
+  getL1GasPriceFormatted(operation: OperationKey): string {
+    return formatUnits(this[operation].l1gasPrice, "gwei");
+  }
+
   getTransactionCount(operation: OperationKey): number {
     return this[operation].perDataProvider.length;
   }
   // Displays data in a table format, called at the end of the script
   displayDataAsTable(network: string): string {
     let output =
-      "| Operation       | Network        | Gas Cost (eth)       | Gas Used (wei)    | Balance Difference (eth) | Gas Price (gwei) |\n";
+      "| Operation       | Network        | Gas Cost (eth)       | Gas Used (wei)    | Balance Difference (eth) | L2 Gas Price (gwei) | L1 Gas Price (gwei)\n";
     output +=
-      "|------------------|------------------|----------------------|-------------------|---------------------------|------------------|\n";
+      "|------------------|------------------|----------------------|-------------------|---------------------------|------------------|------------------|\n";
 
     const operationTotals: Record<
       OperationKey,
@@ -73,32 +82,37 @@ class GasTracker {
         gasCost: BigNumber;
         gasUsed: BigNumber;
         balanceDiff: BigNumber;
-        gasPrice: BigNumber;
+        l2gasPrice: BigNumber;
+        l1gasPrice: BigNumber;
       }
     > = {
       deployment: {
         gasCost: ethers.BigNumber.from(0),
         gasUsed: ethers.BigNumber.from(0),
         balanceDiff: ethers.BigNumber.from(0),
-        gasPrice: ethers.BigNumber.from(0),
+        l2gasPrice: ethers.BigNumber.from(0),
+        l1gasPrice: ethers.BigNumber.from(0),
       },
       registering: {
         gasCost: ethers.BigNumber.from(0),
         gasUsed: ethers.BigNumber.from(0),
         balanceDiff: ethers.BigNumber.from(0),
-        gasPrice: ethers.BigNumber.from(0),
+        l2gasPrice: ethers.BigNumber.from(0),
+        l1gasPrice: ethers.BigNumber.from(0),
       },
       updatingPrices: {
         gasCost: ethers.BigNumber.from(0),
         gasUsed: ethers.BigNumber.from(0),
         balanceDiff: ethers.BigNumber.from(0),
-        gasPrice: ethers.BigNumber.from(0),
+        l2gasPrice: ethers.BigNumber.from(0),
+        l1gasPrice: ethers.BigNumber.from(0),
       },
       finalize: {
         gasCost: ethers.BigNumber.from(0),
         gasUsed: ethers.BigNumber.from(0),
         balanceDiff: ethers.BigNumber.from(0),
-        gasPrice: ethers.BigNumber.from(0),
+        l2gasPrice: ethers.BigNumber.from(0),
+        l1gasPrice: ethers.BigNumber.from(0),
       },
     };
 
@@ -152,9 +166,9 @@ class GasTracker {
       )} | ${formatUnits(
         operationTotals[operationKey].balanceDiff,
         "ether",
-      ).padEnd(25)} | ${formatUnits(operation.gasPrice, "gwei").padEnd(
+      ).padEnd(25)} | ${formatUnits(operation.l2gasPrice, "gwei").padEnd(
         16,
-      )} |\n`;
+      )} | ${formatUnits(operation.l1gasPrice, "gwei").padEnd(16)}|\n`;
     }
 
     output += `| **Total**        | ${network.padEnd(14)} | ${formatUnits(
