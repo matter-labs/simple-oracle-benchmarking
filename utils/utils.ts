@@ -1,4 +1,9 @@
 import * as ethers from "ethers";
+import dotenv from "dotenv";
+dotenv.config();
+
+export const L1_RPC_URL = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
+// export const L1_RPC_URL = `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`;
 
 /**
  * Sends Ether from a wallet to a specified address.

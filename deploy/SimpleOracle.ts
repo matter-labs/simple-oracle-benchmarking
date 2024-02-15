@@ -3,7 +3,7 @@ import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ethers } from "ethers";
 import GasTracker, { getGasTracker } from "../utils/gasTracker";
-
+import { L1_RPC_URL } from "../utils/utils";
 // To run:
 // npx hardhat benchmark-simple-oracle --network <network>
 
@@ -11,6 +11,8 @@ async function deployOnZkSync(
   deployer: Deployer,
   gasTracker: GasTracker,
 ): Promise<string> {
+  const l1Provider = new ethers.providers.JsonRpcProvider(L1_RPC_URL);
+  const l1gasPrice = await l1Provider.getGasPrice();
   const startBalance = await deployer.zkWallet.getBalance();
   const artifact = await deployer.loadArtifact("SimpleOracle");
   const simpleOracleContract = await deployer.deploy(artifact, []);
@@ -32,7 +34,8 @@ async function deployOnZkSync(
     gasTracker.deployment.totalGasCost.add(gasCost);
   gasTracker.deployment.totalBalanceDifference =
     gasTracker.deployment.totalBalanceDifference.add(balanceDifference);
-  gasTracker.deployment.gasPrice = gasPrice;
+  gasTracker.deployment.l2gasPrice = gasPrice;
+  gasTracker.deployment.l1gasPrice = l1gasPrice;
 
   return simpleOracleContract.address;
 }
@@ -43,6 +46,8 @@ async function deployOnOtherNetworks(
   gasTracker: GasTracker,
 ): Promise<string> {
   const { deploy } = deployments;
+  const l1Provider = new ethers.providers.JsonRpcProvider(L1_RPC_URL);
+  const l1gasPrice = await l1Provider.getGasPrice();
   const startBalance = await deployer.getBalance();
   let deployedContract: any;
   try {
@@ -69,7 +74,8 @@ async function deployOnOtherNetworks(
       gasTracker.deployment.totalGasCost.add(gasCost);
     gasTracker.deployment.totalBalanceDifference =
       gasTracker.deployment.totalBalanceDifference.add(balanceDifference);
-    gasTracker.deployment.gasPrice = gasPrice;
+    gasTracker.deployment.l2gasPrice = gasPrice;
+    gasTracker.deployment.l1gasPrice = l1gasPrice;
   } catch (e) {
     console.log("error: ", e);
   }
@@ -116,6 +122,14 @@ module.exports = async function (
   console.log(
     "- Total Balance Difference:",
     gasTracker.getTotalBalanceDifferenceFormatted("deployment"),
+  );
+  console.log(
+    "- L2 Gas Price:",
+    gasTracker.getL2GasPriceFormatted("deployment"),
+  );
+  console.log(
+    "- L1 Gas Price:",
+    gasTracker.getL1GasPriceFormatted("deployment"),
   );
 
   await hre.run("register-providers", { contract, ...taskArgs });
