@@ -37,6 +37,7 @@ const updatePrice = async (wallet: ethers.Wallet, contractInstance: ethers.Contr
       gasCost,
       balanceDifference
     });
+    gasTracker.updatingPrices.gasPrice = gasPrice;
   }    
 }
 

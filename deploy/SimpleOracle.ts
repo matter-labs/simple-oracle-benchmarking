@@ -32,6 +32,7 @@ async function deployOnZkSync(
     gasTracker.deployment.totalGasCost.add(gasCost);
   gasTracker.deployment.totalBalanceDifference =
     gasTracker.deployment.totalBalanceDifference.add(balanceDifference);
+  gasTracker.deployment.gasPrice = gasPrice;
 
   return simpleOracleContract.address;
 }
@@ -68,6 +69,7 @@ async function deployOnOtherNetworks(
       gasTracker.deployment.totalGasCost.add(gasCost);
     gasTracker.deployment.totalBalanceDifference =
       gasTracker.deployment.totalBalanceDifference.add(balanceDifference);
+    gasTracker.deployment.gasPrice = gasPrice;
   } catch (e) {
     console.log("error: ", e);
   }

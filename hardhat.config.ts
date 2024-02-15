@@ -73,8 +73,13 @@ const config: HardhatUserConfig = {
       chainId: 420,
       accounts: [process.env.TESTNET_KEY || ""],
     },
+    "optimism-sepolia": {
+      url: `https://optimism-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 11155420,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
     optimism: {
-      url: "https://optimism.publicnode.com",
+      url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 10,
       accounts: [process.env.MAINNET_KEY || ""],
     },
@@ -83,13 +88,13 @@ const config: HardhatUserConfig = {
       chainId: 1001,
       accounts: [process.env.LOCAL_POLYGONZK_KEY || ""],
     },
-    "polygonzk-testnet": {
-      url: "https://rpc.public.zkevm-test.net",
+    "polygonzkevm-testnet": {
+      url: `https://rpc.ankr.com/polygon_zkevm_testnet/${process.env.ANKR_API_KEY}`,
       chainId: 1442,
       accounts: [process.env.TESTNET_KEY || ""],
     },
-    polygonzk: {
-      url: "https://polygon-zkevm-mainnet.public.blastapi.io	",
+    polygonzkevm: {
+      url: `https://rpc.ankr.com/polygon_zkevm/${process.env.ANKR_API_KEY}`,
       chainId: 1101,
       accounts: [process.env.MAINNET_KEY || ""],
     },
@@ -98,30 +103,40 @@ const config: HardhatUserConfig = {
       chainId: 412346,
       accounts: [process.env.LOCAL_ARBITRUM_KEY || ""],
     },
-    "arbitrum-testnet": {
+    "arbitrum-goerli": {
       url: "https://arbitrum-goerli.publicnode.com",
       chainId: 421613,
       accounts: [process.env.TESTNET_KEY || ""],
     },
+    "arbitrum-sepolia": {
+      url: `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 421614,
+      accounts: [process.env.TESTNET_KEY || ""],
+    },
     arbitrum: {
-      url: "https://arbitrum-one.public.blastapi.io",
+      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161, 
       accounts: [process.env.MAINNET_KEY || ""],
     },
-    "linea-testnet": {
-      url: "https://rpc.goerli.linea.build/",
+    "linea-goerli": {
+      url: `https://linea-goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 59140,
       accounts: [process.env.TESTNET_KEY || ""],
     },
     linea: {
-      url: "https://linea-mainnet.infura.io/v3",
+      url: `https://linea-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 59144,
       accounts: [process.env.MAINNET_KEY || ""],
     },
-    "scroll-testnet": {
-      url: "https://alpha-rpc.scroll.io/l2",
-      chainId: 534353,
+    "scroll-sepolia": {
+      url: `https://rpc.ankr.com/scroll_sepolia_testnet/${process.env.ANKR_API_KEY}`,
+      chainId: 534351,
       accounts: [process.env.TESTNET_KEY || ""],
+    },
+    scroll: {
+      url: `https://rpc.ankr.com/scroll/${process.env.ANKR_API_KEY}`,
+      chainId: 534352,
+      accounts: [process.env.MAINNET_KEY || ""],
     },
   },
 };
