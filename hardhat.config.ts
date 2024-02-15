@@ -79,7 +79,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.TESTNET_KEY || ""],
     },
     optimism: {
-      url: "https://optimism.publicnode.com",
+      url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 10,
       accounts: [process.env.MAINNET_KEY || ""],
     },
@@ -89,12 +89,12 @@ const config: HardhatUserConfig = {
       accounts: [process.env.LOCAL_POLYGONZK_KEY || ""],
     },
     "polygonzkevm-testnet": {
-      url: "https://rpc.ankr.com/polygon_zkevm_testnet",
+      url: `https://rpc.ankr.com/polygon_zkevm_testnet/${process.env.ANKR_API_KEY}`,
       chainId: 1442,
       accounts: [process.env.TESTNET_KEY || ""],
     },
-    polygonzk: {
-      url: "https://polygon-zkevm-mainnet.public.blastapi.io	",
+    polygonzkevm: {
+      url: `https://rpc.ankr.com/polygon_zkevm/${process.env.ANKR_API_KEY}`,
       chainId: 1101,
       accounts: [process.env.MAINNET_KEY || ""],
     },
@@ -114,7 +114,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.TESTNET_KEY || ""],
     },
     arbitrum: {
-      url: "https://arbitrum-one.public.blastapi.io",
+      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161, 
       accounts: [process.env.MAINNET_KEY || ""],
     },
@@ -129,14 +129,14 @@ const config: HardhatUserConfig = {
       accounts: [process.env.MAINNET_KEY || ""],
     },
     "scroll-sepolia": {
-      url: "https://rpc.ankr.com/scroll_sepolia_testnet",
+      url: `https://rpc.ankr.com/scroll_sepolia_testnet/${process.env.ANKR_API_KEY}`,
       chainId: 534351,
       accounts: [process.env.TESTNET_KEY || ""],
     },
     scroll: {
-      url: "https://rpc.ankr.com/scroll",
+      url: `https://rpc.ankr.com/scroll/${process.env.ANKR_API_KEY}`,
       chainId: 534352,
-      accounts: [process.env.TESTNET_KEY || ""],
+      accounts: [process.env.MAINNET_KEY || ""],
     },
   },
 };
